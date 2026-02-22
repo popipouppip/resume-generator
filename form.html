@@ -8,7 +8,96 @@
 </head>
 <body>
 
-  <!-- Сюда будем писать форму -->
+  <header>
+    <a href="index.html" class="logo">ResumeAI</a>
+  </header>
+
+  <main class="form-page">
+    <div class="form-container">
+      <h2>Расскажи о себе</h2>
+      <p class="form-subtitle">AI превратит эти данные в профессиональное резюме</p>
+
+      <form id="resumeForm">
+
+        <!-- Личные данные -->
+        <div class="section-title">Личные данные</div>
+
+        <div class="row">
+          <div class="field">
+            <label>Имя и фамилия</label>
+            <input type="text" id="name" placeholder="Иван Иванов" required>
+          </div>
+          <div class="field">
+            <label>Желаемая должность</label>
+            <input type="text" id="position" placeholder="Frontend-разработчик" required>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="email" placeholder="ivan@email.com" required>
+          </div>
+          <div class="field">
+            <label>Телефон</label>
+            <input type="text" id="phone" placeholder="+7 999 123 45 67">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Город</label>
+          <input type="text" id="city" placeholder="Москва">
+        </div>
+
+        <!-- Опыт работы -->
+        <div class="section-title">Опыт работы</div>
+
+        <div class="field">
+          <label>Компания и должность</label>
+          <input type="text" id="company" placeholder="ООО Ромашка — Менеджер по продажам">
+        </div>
+
+        <div class="field">
+          <label>Период работы</label>
+          <input type="text" id="period" placeholder="2022 — 2024">
+        </div>
+
+        <div class="field">
+          <label>Что ты делал на этой работе</label>
+          <textarea id="duties" rows="4" placeholder="Вёл переговоры с клиентами, увеличил продажи на 30%, управлял командой из 5 человек..."></textarea>
+        </div>
+
+        <!-- Образование -->
+        <div class="section-title">Образование</div>
+
+        <div class="field">
+          <label>Учебное заведение и специальность</label>
+          <input type="text" id="education" placeholder="МГУ — Экономика, 2022">
+        </div>
+
+        <!-- Навыки -->
+        <div class="section-title">Навыки</div>
+
+        <div class="field">
+          <label>Перечисли свои навыки через запятую</label>
+          <input type="text" id="skills" placeholder="Excel, переговоры, работа в команде, английский B2">
+        </div>
+
+        <!-- О себе -->
+        <div class="section-title">О себе</div>
+
+        <div class="field">
+          <label>Пару слов о себе (необязательно)</label>
+          <textarea id="about" rows="3" placeholder="Ответственный, быстро обучаюсь, люблю решать сложные задачи..."></textarea>
+        </div>
+
+        <button type="submit" class="btn" id="generateBtn">
+          Сгенерировать резюме →
+        </button>
+
+      </form>
+    </div>
+  </main>
 
   <script src="script.js"></script>
 </body>

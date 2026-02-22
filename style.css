@@ -114,3 +114,84 @@ h1 {
   h1 { font-size: 40px; }
   header { padding: 20px 24px; }
 }
+
+/* ===== ФОРМА ===== */
+
+.form-page {
+  padding: 40px 24px 80px;
+}
+
+.form-container {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.form-container h2 {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 8px;
+}
+
+.form-subtitle {
+  color: #888;
+  margin-bottom: 40px;
+  font-size: 16px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #555;
+  margin: 36px 0 16px;
+  border-bottom: 1px solid #1e1e1e;
+  padding-bottom: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.field label {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.field input,
+.field textarea {
+  background: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  transition: border 0.2s;
+  resize: vertical;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: #6366f1;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: #444;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 600px) {
+  .row { grid-template-columns: 1fr; }
+}
