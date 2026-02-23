@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Заполни данные — ResumeAI</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <style>
     .form-hero {
@@ -15,8 +14,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: #e8f0fe;
-      color: #1a56db;
+      background: #1e1e2e;
+      color: #818cf8;
+      border: 1px solid #2d2d3d;
       border-radius: 100px;
       padding: 6px 16px;
       font-size: 13px;
@@ -35,38 +35,37 @@
       align-items: center;
       gap: 8px;
       font-size: 13px;
-      color: #aeaeb2;
+      color: #3d3d52;
       font-weight: 500;
     }
-    .form-step.active { color: #0071e3; }
-    .form-step.done   { color: #34c759; }
+    .form-step.active { color: #818cf8; }
+    .form-step.done   { color: #34d399; }
     .step-dot {
       width: 28px; height: 28px;
       border-radius: 50%;
-      background: #e8e8ed;
-      color: #6e6e73;
+      background: #1e1e2e;
+      color: #3d3d52;
       font-size: 12px;
       font-weight: 700;
       display: flex; align-items: center; justify-content: center;
     }
-    .form-step.active .step-dot { background: #0071e3; color: white; }
-    .form-step.done   .step-dot { background: #34c759; color: white; }
-    .step-line { width: 40px; height: 1px; background: #d2d2d7; margin: 0 4px; }
+    .form-step.active .step-dot { background: #6366f1; color: white; }
+    .form-step.done   .step-dot { background: #34d399; color: white; }
+    .step-line { width: 40px; height: 1px; background: #222228; margin: 0 4px; }
 
     .form-card {
-      background: #fff;
-      border: 1px solid #e5e5ea;
+      background: #17171f;
+      border: 1px solid #2a2a38;
       border-radius: 16px;
       padding: 24px 24px 8px;
       margin-bottom: 16px;
-      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
     }
     .form-card-title {
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: #6e6e73;
+      color: #6b6b85;
       margin-bottom: 20px;
       display: flex;
       align-items: center;
@@ -89,26 +88,11 @@
     }
     .form-submit-note {
       font-size: 13px;
-      color: #aeaeb2;
+      color: #3d3d52;
     }
   </style>
 </head>
-<body class="game-body">
-
-  <!-- Факелы -->
-  <div class="dtorch dtorch-left"><div class="dtorch-glow"></div><img src="pixel-old-torch.png" class="dtorch-img"></div>
-  <div class="dtorch dtorch-right"><div class="dtorch-glow"></div><img src="pixel-old-torch.png" class="dtorch-img"></div>
-  <!-- Плющ -->
-  <div class="ivy ivy-tl"><img src="pixel-old-thick-blackthorn.png"></div>
-  <div class="ivy ivy-tr"><img src="pixel-old-thick-blackthorn.png"></div>
-  <div class="ivy ivy-bl"><img src="pixel-old-thick-blackthorn.png"></div>
-  <div class="ivy ivy-br"><img src="pixel-old-thick-blackthorn.png"></div>
-  <!-- Монеты и кинжалы -->
-  <div class="coin coin-1"></div>
-  <div class="coin coin-2"></div>
-  <div class="coin coin-3"></div>
-  <div class="dagger dagger-1">🗡</div>
-  <div class="dagger dagger-2">🗡</div>
+<body>
 
   <header>
     <a href="index.html" class="logo">ResumeAI</a>
