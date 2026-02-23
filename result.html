@@ -5,11 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Твоё резюме — ResumeAI</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
-  <!-- Сюда будем выводить готовое резюме -->
+  <header>
+    <a href="index.html" class="logo">ResumeAI</a>
+    <button class="btn" id="downloadBtn">Скачать PDF</button>
+  </header>
 
-  <script src="script.js"></script>
+  <main class="result-page">
+    <div class="resume-box" id="resumeOutput">
+      Загрузка...
+    </div>
+    <a href="form.html" class="edit-link">← Изменить данные</a>
+  </main>
+
+  <script>
+    const text = localStorage.getItem('resumeText');
+    const output = document.getElementById('resumeOutput');
+
+    if (text) {
+      output.innerText = text;
+    } else {
+      output.innerText = 'Резюме не найдено. Вернись и заполни форму.';
+    }
+
+    document.getElementById('downloadBtn').addEventListener('click', function () {
+      html2pdf().set({
+        margin: 15,
+        filename: 'resume.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).from(output).save();
+    });
+  </script>
+
 </body>
 </html>
