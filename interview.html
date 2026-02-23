@@ -31,16 +31,20 @@
   <script>
     const formData = JSON.parse(localStorage.getItem('formData') || '{}');
     const firstName = (formData.name || 'друг').split(' ')[0];
+    const position = formData.position || '';
 
-    const questions = [
+    // Базовые вопросы для всех
+    const baseQuestions = [
       `Привет, ${firstName}! Я помогу написать резюме, которое выделит тебя среди других 💙\n\nРасскажи — какое твоё главное профессиональное достижение? То, чем ты гордишься больше всего.`,
       'Что тебе больше всего нравится в своей работе? Что заряжает энергией?',
       'Чем ты отличаешься от других специалистов в своей области? Что делаешь лучше всего?',
       'Какая у тебя цель на ближайшие 2–3 года? Куда хочешь прийти?',
-      'Последний вопрос 🙂 Есть что-то важное о себе, что хочешь добавить в резюме? Любой факт, который считаешь значимым.',
     ];
 
-    const answers = [];
+    const finalQuestion = 'Последний вопрос 🙂 Есть что-то важное о себе, что хочешь добавить в резюме? Любой факт, который считаешь значимым.';
+
+    let allQuestions = [];
+    let answers = [];
     let currentQ = 0;
 
     const chatWindow = document.getElementById('chatWindow');
@@ -63,7 +67,6 @@
             msg.className = 'chat-msg bot';
             msg.style.opacity = '0';
             msg.style.transform = 'translateY(8px)';
-            // Handle newlines
             msg.innerHTML = text.replace(/\n/g, '<br>');
             chatWindow.appendChild(msg);
             scrollToBottom();
@@ -100,7 +103,7 @@
     }
 
     async function askQuestion(index) {
-      await addBotMessage(questions[index]);
+      await addBotMessage(allQuestions[index]);
       showInput();
     }
 
@@ -110,16 +113,32 @@
 
       hideInput();
       userInput.value = '';
+      userInput.style.height = 'auto';
       addUserMessage(text);
       answers.push(text);
       currentQ++;
 
-      if (currentQ < questions.length) {
-        await addBotMessage('', 300); // small pause
-        // Remove the empty typing placeholder trick — just ask next
+      if (currentQ < allQuestions.length) {
         await askQuestion(currentQ);
       } else {
         await generateResume();
+      }
+    }
+
+    async function loadSpecificQuestions() {
+      // Показываем что думаем, пока грузим спецвопросы
+      await addBotMessage('Хорошо, понял тебя! Дай секунду — подберу пару вопросов специально для тебя...', 300);
+
+      try {
+        const response = await fetch('/api/questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ position }),
+        });
+        const data = await response.json();
+        return data.questions || [];
+      } catch {
+        return [];
       }
     }
 
@@ -129,11 +148,15 @@
       const payload = {
         ...formData,
         interview: {
-          achievement: answers[0] || '',
-          enjoys: answers[1] || '',
-          strength: answers[2] || '',
-          goal: answers[3] || '',
-          extra: answers[4] || '',
+          achievement:       answers[0] || '',
+          enjoys:            answers[1] || '',
+          strength:          answers[2] || '',
+          goal:              answers[3] || '',
+          specific1_q:       allQuestions[4] || '',
+          specific1_a:       answers[4] || '',
+          specific2_q:       allQuestions[5] || '',
+          specific2_a:       answers[5] || '',
+          extra:             answers[answers.length - 1] || '',
         }
       };
 
@@ -168,14 +191,62 @@
       }
     });
 
-    // Auto-resize textarea
     userInput.addEventListener('input', function () {
       this.style.height = 'auto';
       this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
 
-    // Start
-    askQuestion(0);
+    // Старт: задаём базовые вопросы, потом после 4-го грузим специфические
+    async function init() {
+      // После 4 базовых вопросов вставим 2 специфических + финальный
+      // Но сначала зададим все базовые, а перед 5-м сделаем запрос
+      // Для этого обрабатываем в handleAnswer: если currentQ === baseQuestions.length и спецвопросы ещё не загружены
+
+      allQuestions = [...baseQuestions]; // пока только базовые
+      await askQuestion(0);
+    }
+
+    // Переопределяем handleAnswer чтобы подгрузить спецвопросы в нужный момент
+    let specificLoaded = false;
+
+    sendBtn.addEventListener('click', () => {}, false); // placeholder
+    userInput.addEventListener('keydown', () => {}, false); // placeholder
+
+    // Убираем старые обработчики и вешаем новый умный
+    sendBtn.onclick = smartAnswer;
+    userInput.onkeydown = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        smartAnswer();
+      }
+    };
+
+    async function smartAnswer() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      hideInput();
+      userInput.value = '';
+      userInput.style.height = 'auto';
+      addUserMessage(text);
+      answers.push(text);
+      currentQ++;
+
+      // После 4-го базового ответа — загружаем спецвопросы
+      if (currentQ === baseQuestions.length && !specificLoaded) {
+        specificLoaded = true;
+        const specific = await loadSpecificQuestions();
+        allQuestions = [...baseQuestions, ...specific, finalQuestion];
+
+        await askQuestion(currentQ);
+      } else if (currentQ < allQuestions.length) {
+        await askQuestion(currentQ);
+      } else {
+        await generateResume();
+      }
+    }
+
+    init();
   </script>
 
 </body>
