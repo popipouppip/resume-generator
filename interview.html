@@ -6,42 +6,40 @@
   <title>Интервью — ResumeAI</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="game-body dark">
+<body>
 
-  <header class="game-header">
-    <a href="index.html" class="logo game-logo">ResumeAI</a>
+  <header class="interview-header">
+    <a href="index.html" class="logo">ResumeAI</a>
     <div class="xp-wrap">
-      <div class="xp-label" id="xpLabel">Вопрос I</div>
+      <div class="xp-label" id="xpLabel">Вопрос 1</div>
       <div class="xp-track">
         <div class="xp-fill" id="xpFill" style="width:0%"></div>
       </div>
     </div>
   </header>
 
-  <main class="game-page">
-    <div class="game-container">
-      <div class="game-chat" id="chatWindow"></div>
-      <div class="game-input-area" id="inputArea" style="display:none">
-        <textarea class="game-input" id="userInput" placeholder="Введи ответ..." rows="1"></textarea>
-        <button class="game-send-btn" id="sendBtn">⚡</button>
+  <main class="interview-page">
+    <div class="interview-container">
+      <div class="interview-chat" id="chatWindow"></div>
+      <div class="interview-input-area" id="inputArea" style="display:none">
+        <textarea class="interview-input" id="userInput" placeholder="Введи ответ..." rows="1"></textarea>
+        <button class="interview-send-btn" id="sendBtn">→</button>
       </div>
     </div>
   </main>
 
   <script>
     const formData = JSON.parse(localStorage.getItem('formData') || '{}');
-    const firstName = (formData.name || 'странник').split(' ')[0];
+    const firstName = (formData.name || 'друг').split(' ')[0];
     const position  = formData.position || '';
 
-    const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
-
     const baseQuestions = [
-      `Приветствую тебя, ${firstName}! Я помогу написать резюме, которое выделит тебя среди других 🔥\n\nРасскажи — какое твоё главное профессиональное достижение? То, чем гордишься больше всего.`,
+      `Привет, ${firstName}! Я помогу написать резюме, которое выделит тебя среди других.\n\nРасскажи — какое твоё главное профессиональное достижение? То, чем гордишься больше всего.`,
       'Что тебе больше всего нравится в своей работе? Что по-настоящему заряжает?',
       'В чём ты лучше других в своей области? Что выделяет тебя среди коллег?',
       'Какая у тебя цель на ближайшие 2–3 года? Куда хочешь двигаться?',
     ];
-    const finalQuestion = 'Последнее испытание! ⚡ Есть что-то важное о себе, что хочешь добавить в резюме?';
+    const finalQuestion = 'Последний вопрос — есть что-то важное о себе, что хочешь добавить в резюме?';
 
     let specificQuestions = null;
     let answers  = [];
@@ -57,15 +55,10 @@
     const xpLabel    = document.getElementById('xpLabel');
 
     function updateXP() {
-      const pct = Math.min((currentQ / totalQ) * 100, 95);
+      const total = getTotalQuestions();
+      const pct = Math.min((currentQ / total) * 100, 95);
       xpFill.style.width = pct + '%';
-      xpLabel.textContent = 'Вопрос ' + (romans[currentQ] || (currentQ + 1));
-    }
-
-    function showAchievement() {
-      const el = document.getElementById('achievement');
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 3200);
+      xpLabel.textContent = 'Вопрос ' + (currentQ + 1) + ' из ' + total;
     }
 
     function scrollToBottom() {
@@ -74,7 +67,7 @@
 
     function addUserMessage(text) {
       const msg = document.createElement('div');
-      msg.className = 'game-msg user';
+      msg.className = 'chat-msg user';
       msg.textContent = text;
       chatWindow.appendChild(msg);
       scrollToBottom();
@@ -83,18 +76,18 @@
     function addBotMessage(text) {
       return new Promise(resolve => {
         const wrap = document.createElement('div');
-        wrap.className = 'game-bot-wrap';
-        wrap.innerHTML = `<div class="game-avatar">✦</div><div class="game-msg bot typing"><span></span><span></span><span></span></div>`;
+        wrap.className = 'chat-bot-wrap';
+        wrap.innerHTML = `<div class="chat-avatar">AI</div><div class="chat-msg bot typing"><span></span><span></span><span></span></div>`;
         chatWindow.appendChild(wrap);
         scrollToBottom();
 
         setTimeout(() => {
           wrap.remove();
           const w2 = document.createElement('div');
-          w2.className = 'game-bot-wrap';
+          w2.className = 'chat-bot-wrap';
           w2.style.opacity = '0';
           w2.style.transform = 'translateY(8px)';
-          w2.innerHTML = `<div class="game-avatar">✦</div><div class="game-msg bot">${text.replace(/\n/g, '<br>')}</div>`;
+          w2.innerHTML = `<div class="chat-avatar">AI</div><div class="chat-msg bot">${text.replace(/\n/g, '<br>')}</div>`;
           chatWindow.appendChild(w2);
           scrollToBottom();
           requestAnimationFrame(() => {
@@ -111,7 +104,7 @@
     function hideInput() { inputArea.style.display = 'none'; }
 
     async function loadSpecificQuestions() {
-      await addBotMessage('Секунду... подбираю особые вопросы специально для тебя 🎲');
+      await addBotMessage('Секунду... подбираю вопросы специально для твоей профессии.');
       try {
         const res  = await fetch('/api/questions', {
           method: 'POST',
@@ -128,7 +121,7 @@
     async function generateResume() {
       xpFill.style.width = '100%';
       xpLabel.textContent = 'Готово!';
-      await addBotMessage('Квест завершён! Создаю твоё резюме... ✨');
+      await addBotMessage('Отлично! Создаю твоё резюме...');
 
       const spec = specificQuestions || [];
       const payload = {
@@ -156,14 +149,14 @@
 
         if (result.resume) {
           localStorage.setItem('resumeData', JSON.stringify(result.resume));
-          await addBotMessage('Готово! 🎉 Переходим к твоему резюме...');
+          await addBotMessage('Готово! Переходим к твоему резюме...');
           setTimeout(() => { window.location.href = 'result.html'; }, 1200);
         } else {
-          await addBotMessage('Что-то пошло не так. <a href="form.html" style="color:#d97706">Попробуй снова</a>.');
+          await addBotMessage('Что-то пошло не так. <a href="form.html" style="color:#818cf8">Попробуй снова</a>.');
           busy = false;
         }
       } catch {
-        await addBotMessage('Ошибка соединения. <a href="form.html" style="color:#d97706">Попробуй снова</a>.');
+        await addBotMessage('Ошибка соединения. <a href="form.html" style="color:#818cf8">Попробуй снова</a>.');
         busy = false;
       }
     }
@@ -192,11 +185,9 @@
       answers.push(text);
       currentQ++;
 
-      // После 4-го ответа — загружаем спецвопросы
       if (currentQ === baseQuestions.length && specificQuestions === null) {
         specificQuestions = await loadSpecificQuestions();
         totalQ = getTotalQuestions();
-        if (specificQuestions.length > 0) showAchievement();
       }
 
       updateXP();
