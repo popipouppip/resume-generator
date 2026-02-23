@@ -1021,6 +1021,132 @@ h1 {
   border-radius: 55% 55% 30% 30% / 65% 65% 35% 35%;
 }
 
+/* ===== ПОДЗЕМНЫЙ СТИЛЬ ДЛЯ ГЛАВНОЙ И ФОРМЫ ===== */
+
+.game-body header,
+.game-body .game-header {
+  background: rgba(13,9,6,0.96);
+  border-bottom: 1px solid #3d2a1a;
+}
+
+.game-body .logo {
+  font-family: 'Cinzel', Georgia, serif;
+  color: #d97706;
+  text-shadow: 0 0 20px rgba(217,119,6,0.4);
+}
+
+.game-body .btn {
+  background: linear-gradient(135deg, #b45309, #92400e);
+  border: 1px solid #d97706;
+  box-shadow: 0 4px 16px rgba(217,119,6,0.3);
+}
+
+.game-body .btn:hover {
+  background: linear-gradient(135deg, #d97706, #b45309);
+}
+
+.game-body h1 {
+  color: #f5e6d0;
+}
+
+.game-body .badge {
+  background: rgba(217,119,6,0.15);
+  color: #d97706;
+  border: 1px solid rgba(217,119,6,0.25);
+}
+
+.game-body .subtitle {
+  color: #c8a97a;
+}
+
+.game-body .stat strong {
+  color: #f5e6d0;
+}
+
+.game-body .stat span {
+  color: #9a7a54;
+}
+
+.game-body .divider {
+  background: #3d2a1a;
+}
+
+/* Форма в тёмной теме */
+.game-body .form-page {
+  padding-top: 32px;
+}
+
+.game-body .form-container h2 {
+  color: #f5e6d0;
+  font-family: 'Cinzel', Georgia, serif;
+}
+
+.game-body .form-subtitle {
+  color: #c8a97a;
+}
+
+.game-body .form-card {
+  background: linear-gradient(135deg, #1a1208, #1e1610);
+  border: 1px solid #3d2a1a;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+
+.game-body .form-card-title {
+  color: #d97706;
+  border-bottom: 1px solid #3d2a1a;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.game-body .section-title {
+  color: #d97706;
+  border-bottom-color: #3d2a1a;
+}
+
+.game-body .field label {
+  color: #c8a97a;
+}
+
+.game-body .field input,
+.game-body .field textarea {
+  background: #0d0906;
+  border: 1px solid #3d2a1a;
+  color: #f5e6d0;
+  border-radius: 10px;
+}
+
+.game-body .field input:focus,
+.game-body .field textarea:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217,119,6,0.2);
+}
+
+.game-body .field input::placeholder,
+.game-body .field textarea::placeholder {
+  color: #5c3d1e;
+}
+
+.game-body .form-submit-area .btn {
+  max-width: 100%;
+}
+
+.game-body .form-submit-note {
+  color: #9a7a54;
+}
+
+/* Шаги формы в тёмной теме */
+.game-body .form-hero-badge {
+  background: rgba(217,119,6,0.15);
+  color: #d97706;
+  border: 1px solid rgba(217,119,6,0.25);
+}
+
+.game-body .form-step { color: #5c3d1e; }
+.game-body .form-step.active { color: #d97706; }
+.game-body .step-dot { background: #2d1f12; color: #9a7a54; }
+.game-body .form-step.active .step-dot { background: #b45309; color: #fef3c7; box-shadow: 0 0 10px rgba(217,119,6,0.4); }
+.game-body .step-line { background: #3d2a1a; }
+
 /* ===== АДАПТИВ ===== */
 @media (max-width: 760px) {
   .hero-split { flex-direction: column; text-align: center; padding: 60px 24px 40px; gap: 40px; }
