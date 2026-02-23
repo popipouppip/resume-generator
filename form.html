@@ -5,6 +5,92 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Заполни данные — ResumeAI</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .form-hero {
+      text-align: center;
+      padding: 48px 24px 0;
+    }
+    .form-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e8f0fe;
+      color: #1a56db;
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+    .form-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+    .form-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #aeaeb2;
+      font-weight: 500;
+    }
+    .form-step.active { color: #0071e3; }
+    .form-step.done   { color: #34c759; }
+    .step-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #e8e8ed;
+      color: #6e6e73;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .form-step.active .step-dot { background: #0071e3; color: white; }
+    .form-step.done   .step-dot { background: #34c759; color: white; }
+    .step-line { width: 40px; height: 1px; background: #d2d2d7; margin: 0 4px; }
+
+    .form-card {
+      background: #fff;
+      border: 1px solid #e5e5ea;
+      border-radius: 16px;
+      padding: 24px 24px 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+    }
+    .form-card-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #6e6e73;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .form-card-title span { font-size: 16px; }
+    .form-submit-area {
+      padding: 8px 0 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .form-submit-area .btn {
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      padding: 16px 28px;
+      font-size: 16px;
+    }
+    .form-submit-note {
+      font-size: 13px;
+      color: #aeaeb2;
+    }
+  </style>
 </head>
 <body>
 
@@ -12,88 +98,113 @@
     <a href="index.html" class="logo">ResumeAI</a>
   </header>
 
+  <!-- Шапка формы -->
+  <div class="form-hero">
+    <div class="form-hero-badge">
+      <span>✦</span> Шаг 1 из 2 — Основные данные
+    </div>
+    <div class="form-steps">
+      <div class="form-step active">
+        <div class="step-dot">1</div>
+        Данные
+      </div>
+      <div class="step-line"></div>
+      <div class="form-step">
+        <div class="step-dot">2</div>
+        Интервью
+      </div>
+      <div class="step-line"></div>
+      <div class="form-step">
+        <div class="step-dot">3</div>
+        Резюме
+      </div>
+    </div>
+  </div>
+
   <main class="form-page">
     <div class="form-container">
-      <h2>Расскажи о себе</h2>
-      <p class="form-subtitle">AI превратит эти данные в профессиональное резюме</p>
 
       <form id="resumeForm">
 
         <!-- Личные данные -->
-        <div class="section-title">Личные данные</div>
-
-        <div class="row">
-          <div class="field">
-            <label>Имя и фамилия</label>
-            <input type="text" id="name" placeholder="Иван Иванов" required>
+        <div class="form-card">
+          <div class="form-card-title"><span>👤</span> Личные данные</div>
+          <div class="row">
+            <div class="field">
+              <label>Имя и фамилия</label>
+              <input type="text" id="name" placeholder="Иван Иванов" required>
+            </div>
+            <div class="field">
+              <label>Желаемая должность</label>
+              <input type="text" id="position" placeholder="Frontend-разработчик" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="email" placeholder="ivan@email.com" required>
+            </div>
+            <div class="field">
+              <label>Телефон</label>
+              <input type="text" id="phone" placeholder="+7 999 123 45 67">
+            </div>
           </div>
           <div class="field">
-            <label>Желаемая должность</label>
-            <input type="text" id="position" placeholder="Frontend-разработчик" required>
+            <label>Город</label>
+            <input type="text" id="city" placeholder="Москва">
           </div>
-        </div>
-
-        <div class="row">
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="email" placeholder="ivan@email.com" required>
-          </div>
-          <div class="field">
-            <label>Телефон</label>
-            <input type="text" id="phone" placeholder="+7 999 123 45 67">
-          </div>
-        </div>
-
-        <div class="field">
-          <label>Город</label>
-          <input type="text" id="city" placeholder="Москва">
         </div>
 
         <!-- Опыт работы -->
-        <div class="section-title">Опыт работы</div>
-
-        <div class="field">
-          <label>Компания и должность</label>
-          <input type="text" id="company" placeholder="ООО Ромашка — Менеджер по продажам">
-        </div>
-
-        <div class="field">
-          <label>Период работы</label>
-          <input type="text" id="period" placeholder="2022 — 2024">
-        </div>
-
-        <div class="field">
-          <label>Что ты делал на этой работе</label>
-          <textarea id="duties" rows="4" placeholder="Вёл переговоры с клиентами, увеличил продажи на 30%, управлял командой из 5 человек..."></textarea>
+        <div class="form-card">
+          <div class="form-card-title"><span>💼</span> Опыт работы</div>
+          <div class="field">
+            <label>Компания и должность</label>
+            <input type="text" id="company" placeholder="ООО Ромашка — Менеджер по продажам">
+          </div>
+          <div class="field">
+            <label>Период работы</label>
+            <input type="text" id="period" placeholder="2022 — 2024">
+          </div>
+          <div class="field">
+            <label>Что ты делал на этой работе</label>
+            <textarea id="duties" rows="4" placeholder="Вёл переговоры с клиентами, увеличил продажи на 30%, управлял командой из 5 человек..."></textarea>
+          </div>
         </div>
 
         <!-- Образование -->
-        <div class="section-title">Образование</div>
-
-        <div class="field">
-          <label>Учебное заведение и специальность</label>
-          <input type="text" id="education" placeholder="МГУ — Экономика, 2022">
+        <div class="form-card">
+          <div class="form-card-title"><span>🎓</span> Образование</div>
+          <div class="field">
+            <label>Учебное заведение и специальность</label>
+            <input type="text" id="education" placeholder="МГУ — Экономика, 2022">
+          </div>
         </div>
 
         <!-- Навыки -->
-        <div class="section-title">Навыки</div>
-
-        <div class="field">
-          <label>Перечисли свои навыки через запятую</label>
-          <input type="text" id="skills" placeholder="Excel, переговоры, работа в команде, английский B2">
+        <div class="form-card">
+          <div class="form-card-title"><span>⚡</span> Навыки</div>
+          <div class="field">
+            <label>Перечисли свои навыки через запятую</label>
+            <input type="text" id="skills" placeholder="Excel, переговоры, работа в команде, английский B2">
+          </div>
         </div>
 
         <!-- О себе -->
-        <div class="section-title">О себе</div>
-
-        <div class="field">
-          <label>Пару слов о себе (необязательно)</label>
-          <textarea id="about" rows="3" placeholder="Ответственный, быстро обучаюсь, люблю решать сложные задачи..."></textarea>
+        <div class="form-card">
+          <div class="form-card-title"><span>💬</span> О себе</div>
+          <div class="field">
+            <label>Пару слов о себе (необязательно)</label>
+            <textarea id="about" rows="3" placeholder="Ответственный, быстро обучаюсь, люблю решать сложные задачи..."></textarea>
+          </div>
         </div>
 
-        <button type="submit" class="btn" id="generateBtn">
-          Сгенерировать резюме →
-        </button>
+        <div class="form-submit-area">
+          <button type="submit" class="btn" id="generateBtn">
+            Перейти к интервью →
+          </button>
+          <p class="form-submit-note">Далее AI задаст тебе пару вопросов и напишет резюме</p>
+        </div>
 
       </form>
     </div>

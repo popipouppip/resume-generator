@@ -4,53 +4,85 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Интервью — ResumeAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="game-body">
 
+  <!-- Факел слева -->
+  <div class="dtorch dtorch-left">
+    <div class="dtorch-glow"></div>
+    <div class="dtorch-fire"></div>
+    <div class="dtorch-handle"></div>
+    <div class="dtorch-mount"></div>
+  </div>
+
+  <!-- Факел справа -->
+  <div class="dtorch dtorch-right">
+    <div class="dtorch-glow"></div>
+    <div class="dtorch-fire"></div>
+    <div class="dtorch-handle"></div>
+    <div class="dtorch-mount"></div>
+  </div>
+
+  <!-- Плющ по углам -->
+  <div class="ivy ivy-tl">🌿</div>
+  <div class="ivy ivy-tr">🌿</div>
+  <div class="ivy ivy-bl">🌿</div>
+  <div class="ivy ivy-br">🌿</div>
+
+  <!-- Золотые монеты -->
+  <div class="coin coin-1"></div>
+  <div class="coin coin-2"></div>
+  <div class="coin coin-3"></div>
+
+  <!-- Кинжалы -->
+  <div class="dagger dagger-1">🗡</div>
+  <div class="dagger dagger-2">🗡</div>
+
+  <!-- Уведомление-достижение -->
+  <div class="achievement" id="achievement">⚔ Особые вопросы разблокированы!</div>
+
   <header class="game-header">
-    <a href="index.html" class="logo game-logo">ResumeAI</a>
+    <a href="index.html" class="logo game-logo">⚔ ResumeAI</a>
     <div class="xp-wrap">
-      <div class="xp-label" id="xpLabel">Вопрос 1</div>
+      <div class="xp-label" id="xpLabel">Вопрос I</div>
       <div class="xp-track">
         <div class="xp-fill" id="xpFill" style="width:0%"></div>
       </div>
     </div>
   </header>
 
-  <div class="achievement" id="achievement">
-    🏆 Бонус-вопросы разблокированы!
-  </div>
-
   <main class="game-page">
     <div class="game-container">
       <div class="game-chat" id="chatWindow"></div>
       <div class="game-input-area" id="inputArea" style="display:none">
         <textarea class="game-input" id="userInput" placeholder="Введи ответ..." rows="1"></textarea>
-        <button class="game-send-btn" id="sendBtn">→</button>
+        <button class="game-send-btn" id="sendBtn">⚡</button>
       </div>
     </div>
   </main>
 
   <script>
     const formData = JSON.parse(localStorage.getItem('formData') || '{}');
-    const firstName = (formData.name || 'друг').split(' ')[0];
+    const firstName = (formData.name || 'странник').split(' ')[0];
     const position  = formData.position || '';
 
+    const romans = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+
     const baseQuestions = [
-      `Привет, ${firstName}! Я твой помощник в создании резюме 🧙\n\nРасскажи — какое твоё главное профессиональное достижение? То, чем гордишься больше всего.`,
+      `Приветствую тебя, ${firstName}! Я помогу написать резюме, которое выделит тебя среди других 🔥\n\nРасскажи — какое твоё главное профессиональное достижение? То, чем гордишься больше всего.`,
       'Что тебе больше всего нравится в своей работе? Что по-настоящему заряжает?',
       'В чём ты лучше других в своей области? Что выделяет тебя среди коллег?',
       'Какая у тебя цель на ближайшие 2–3 года? Куда хочешь двигаться?',
     ];
-    const finalQuestion = 'Последний вопрос! ⚡ Есть что-то важное о себе, что хочешь добавить в резюме?';
+    const finalQuestion = 'Последнее испытание! ⚡ Есть что-то важное о себе, что хочешь добавить в резюме?';
 
-    // specificQuestions загрузятся после базовых
     let specificQuestions = null;
     let answers  = [];
     let currentQ = 0;
+    let totalQ   = baseQuestions.length + 3;
     let busy     = false;
-    let totalQ   = baseQuestions.length + 3; // примерная оценка для XP-бара (уточнится)
 
     const chatWindow = document.getElementById('chatWindow');
     const inputArea  = document.getElementById('inputArea');
@@ -59,21 +91,18 @@
     const xpFill     = document.getElementById('xpFill');
     const xpLabel    = document.getElementById('xpLabel');
 
-    // ── XP бар ───────────────────────────────────────────────────
     function updateXP() {
       const pct = Math.min((currentQ / totalQ) * 100, 95);
       xpFill.style.width = pct + '%';
-      xpLabel.textContent = `Вопрос ${currentQ + 1}`;
+      xpLabel.textContent = 'Вопрос ' + (romans[currentQ] || (currentQ + 1));
     }
 
-    // ── достижение ───────────────────────────────────────────────
     function showAchievement() {
       const el = document.getElementById('achievement');
       el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 3000);
+      setTimeout(() => el.classList.remove('show'), 3200);
     }
 
-    // ── сообщения ────────────────────────────────────────────────
     function scrollToBottom() {
       chatWindow.scrollTop = chatWindow.scrollHeight;
     }
@@ -88,7 +117,6 @@
 
     function addBotMessage(text) {
       return new Promise(resolve => {
-        // typing indicator
         const wrap = document.createElement('div');
         wrap.className = 'game-bot-wrap';
         wrap.innerHTML = `<div class="game-avatar">✦</div><div class="game-msg bot typing"><span></span><span></span><span></span></div>`;
@@ -106,7 +134,7 @@
           scrollToBottom();
           requestAnimationFrame(() => {
             w2.style.transition = 'opacity 0.3s, transform 0.3s';
-            w2.style.opacity  = '1';
+            w2.style.opacity = '1';
             w2.style.transform = 'translateY(0)';
           });
           resolve();
@@ -114,15 +142,9 @@
       });
     }
 
-    function showInput() {
-      inputArea.style.display = 'flex';
-      userInput.focus();
-    }
-    function hideInput() {
-      inputArea.style.display = 'none';
-    }
+    function showInput() { inputArea.style.display = 'flex'; userInput.focus(); }
+    function hideInput() { inputArea.style.display = 'none'; }
 
-    // ── загрузка спецвопросов ─────────────────────────────────────
     async function loadSpecificQuestions() {
       await addBotMessage('Секунду... подбираю особые вопросы специально для тебя 🎲');
       try {
@@ -138,7 +160,6 @@
       }
     }
 
-    // ── генерация резюме ──────────────────────────────────────────
     async function generateResume() {
       xpFill.style.width = '100%';
       xpLabel.textContent = 'Готово!';
@@ -173,32 +194,27 @@
           await addBotMessage('Готово! 🎉 Переходим к твоему резюме...');
           setTimeout(() => { window.location.href = 'result.html'; }, 1200);
         } else {
-          await addBotMessage('Что-то пошло не так. <a href="form.html" style="color:#a78bfa">Попробуй снова</a>.');
+          await addBotMessage('Что-то пошло не так. <a href="form.html" style="color:#d97706">Попробуй снова</a>.');
           busy = false;
         }
       } catch {
-        await addBotMessage('Ошибка соединения. <a href="form.html" style="color:#a78bfa">Попробуй снова</a>.');
+        await addBotMessage('Ошибка соединения. <a href="form.html" style="color:#d97706">Попробуй снова</a>.');
         busy = false;
       }
     }
 
-    // ── получить текущий вопрос ───────────────────────────────────
     function getQuestion(index) {
-      // 0-3: базовые
       if (index < baseQuestions.length) return baseQuestions[index];
-      // дальше: специфические (если есть) + финальный
+      const spec = specificQuestions || [];
       const extra = index - baseQuestions.length;
-      const spec  = specificQuestions || [];
       if (extra < spec.length) return spec[extra];
       return finalQuestion;
     }
 
     function getTotalQuestions() {
-      const spec = specificQuestions || [];
-      return baseQuestions.length + spec.length + 1;
+      return baseQuestions.length + (specificQuestions || []).length + 1;
     }
 
-    // ── основной обработчик ───────────────────────────────────────
     async function handleAnswer() {
       const text = userInput.value.trim();
       if (!text || busy) return;
@@ -220,8 +236,7 @@
 
       updateXP();
 
-      const total = getTotalQuestions();
-      if (currentQ < total) {
+      if (currentQ < getTotalQuestions()) {
         await addBotMessage(getQuestion(currentQ));
         showInput();
         busy = false;
@@ -230,20 +245,15 @@
       }
     }
 
-    // ── события ───────────────────────────────────────────────────
     sendBtn.addEventListener('click', handleAnswer);
     userInput.addEventListener('keydown', function(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        handleAnswer();
-      }
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleAnswer(); }
     });
     userInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
 
-    // ── старт ─────────────────────────────────────────────────────
     async function init() {
       updateXP();
       await addBotMessage(baseQuestions[0]);
