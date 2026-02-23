@@ -1,44 +1,48 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { name, position, email, phone, city, company, period, duties, education, skills, about } = req.body;
 
-  const prompt = `Ты профессиональный HR-специалист. Напиши профессиональное резюме на русском языке на основе этих данных:
+  const prompt = `Ты профессиональный карьерный консультант с 15-летним опытом. На основе данных кандидата напиши профессиональное резюме. Верни ТОЛЬКО валидный JSON без markdown, без пояснений.
 
+Данные кандидата:
 Имя: ${name}
-Желаемая должность: ${position}
+Должность: ${position}
 Email: ${email}
 Телефон: ${phone}
 Город: ${city}
-Компания и должность: ${company}
-Период работы: ${period}
+Компания: ${company}
+Период: ${period}
 Обязанности: ${duties}
 Образование: ${education}
 Навыки: ${skills}
 О себе: ${about}
 
-Напиши резюме в таком формате (используй эти точные заголовки):
-
-ИМЯ: [имя]
-ДОЛЖНОСТЬ: [желаемая должность]
-КОНТАКТЫ: [email] | [телефон] | [город]
-
-О СЕБЕ:
-[2-3 предложения, раскрывающие сильные стороны кандидата, написанные профессионально]
-
-ОПЫТ РАБОТЫ:
-[компания и должность] | [период]
-[3-4 пункта с конкретными достижениями, начинай каждый с глагола действия]
-
-ОБРАЗОВАНИЕ:
-[учебное заведение и специальность]
-
-НАВЫКИ:
-[навыки через запятую, добавь релевантные навыки для должности]
-
-Пиши убедительно и профессионально. Подчеркни сильные стороны кандидата.`;
+Верни JSON в таком формате:
+{
+  "name": "полное имя",
+  "position": "желаемая должность",
+  "email": "email",
+  "phone": "телефон",
+  "city": "город",
+  "summary": "3-4 предложения. Сильное профессиональное резюме кандидата. Подчеркни экспертизу, ключевые достижения и ценность для работодателя. Пиши от третьего лица.",
+  "experience": [
+    {
+      "company": "название компании",
+      "role": "должность",
+      "period": "период",
+      "achievements": [
+        "Конкретное достижение с цифрами или результатом",
+        "Конкретное достижение с цифрами или результатом",
+        "Конкретное достижение с цифрами или результатом"
+      ]
+    }
+  ],
+  "education": "учебное заведение и специальность",
+  "skills": ["навык1", "навык2", "навык3", "навык4", "навык5", "навык6"]
+}`;
 
   try {
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -51,14 +55,20 @@ Email: ${email}
         model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 1200,
       }),
     });
 
     const data = await response.json();
-    const resumeText = data.choices[0].message.content;
+    const text = data.choices[0].message.content;
 
-    res.status(200).json({ resume: resumeText });
+    // Извлекаем JSON из ответа
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON found');
+
+    const resumeData = JSON.parse(jsonMatch[0]);
+    res.status(200).json({ resume: resumeData });
+
   } catch (error) {
     res.status(500).json({ error: 'Ошибка генерации. Попробуй ещё раз.' });
   }

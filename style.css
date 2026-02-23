@@ -275,6 +275,184 @@ h1 {
   margin-bottom: 5px;
 }
 
+/* ===== CV ШАБЛОН ===== */
+
+.cv-wrap {
+  max-width: 820px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.cv-card {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 60px rgba(0,0,0,0.12);
+  font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+/* ЛЕВАЯ КОЛОНКА */
+.cv-left {
+  background: #1c2b3a;
+  padding: 44px 28px;
+  color: #fff;
+}
+
+.cv-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #0071e3;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  font-family: -apple-system, sans-serif;
+}
+
+.cv-left-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  font-family: -apple-system, sans-serif;
+}
+
+.cv-left-pos {
+  font-size: 13px;
+  color: #7fa4c4;
+  margin-bottom: 28px;
+  font-family: -apple-system, sans-serif;
+  font-style: italic;
+}
+
+.cv-left-section {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #7fa4c4;
+  margin: 24px 0 12px;
+  font-family: -apple-system, sans-serif;
+  border-top: 1px solid #2d4557;
+  padding-top: 16px;
+}
+
+.cv-contact-item {
+  font-size: 12px;
+  color: #c8d8e4;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: -apple-system, sans-serif;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.cv-contact-icon {
+  color: #7fa4c4;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.cv-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cv-skill {
+  background: #2d4557;
+  color: #c8d8e4;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: -apple-system, sans-serif;
+}
+
+.cv-edu-text {
+  font-size: 12px;
+  color: #c8d8e4;
+  line-height: 1.6;
+  font-family: -apple-system, sans-serif;
+}
+
+/* ПРАВАЯ КОЛОНКА */
+.cv-right {
+  background: #fff;
+  padding: 44px 40px;
+}
+
+.cv-right-section {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: #1c2b3a;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1c2b3a;
+  font-family: -apple-system, sans-serif;
+}
+
+.cv-summary {
+  font-size: 14px;
+  color: #3a3a3c;
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+
+.cv-job {
+  margin-bottom: 24px;
+}
+
+.cv-job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.cv-job-role {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1d1d1f;
+  font-family: -apple-system, sans-serif;
+}
+
+.cv-job-company {
+  font-size: 13px;
+  color: #0071e3;
+  font-family: -apple-system, sans-serif;
+  margin-top: 2px;
+}
+
+.cv-job-period {
+  font-size: 12px;
+  color: #6e6e73;
+  font-family: -apple-system, sans-serif;
+  white-space: nowrap;
+  margin-left: 16px;
+}
+
+.cv-bullets {
+  padding-left: 18px;
+}
+
+.cv-bullets li {
+  font-size: 13.5px;
+  color: #3a3a3c;
+  line-height: 1.7;
+  margin-bottom: 5px;
+}
+
 /* ===== АДАПТИВ ===== */
 @media (max-width: 600px) {
   h1 { font-size: 38px; letter-spacing: -1.5px; }

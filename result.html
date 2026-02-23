@@ -15,47 +15,92 @@
   </header>
 
   <main class="result-page">
-    <div class="resume-box" id="resumeOutput"></div>
+    <div class="cv-wrap" id="cvOutput">
+      <!-- Резюме рендерится сюда -->
+    </div>
     <a href="form.html" class="edit-link">← Изменить данные</a>
   </main>
 
   <script>
-    const raw = localStorage.getItem('resumeText');
-    const output = document.getElementById('resumeOutput');
+    const raw = localStorage.getItem('resumeData');
+    const wrap = document.getElementById('cvOutput');
 
     if (!raw) {
-      output.innerHTML = '<p style="color:#888">Резюме не найдено. <a href="form.html" style="color:#6366f1">Вернись и заполни форму.</a></p>';
+      wrap.innerHTML = '<p style="padding:40px;color:#6e6e73">Резюме не найдено. <a href="form.html" style="color:#0071e3">Вернись и заполни форму.</a></p>';
     } else {
-      // Разбиваем текст на секции и красиво оформляем
-      const lines = raw.split('\n').filter(l => l.trim() !== '');
-      let html = '';
+      const d = JSON.parse(raw);
 
-      lines.forEach(line => {
-        const trimmed = line.trim();
+      const skillsHtml = (d.skills || []).map(s =>
+        `<span class="cv-skill">${s}</span>`
+      ).join('');
 
-        if (trimmed.startsWith('ИМЯ:')) {
-          html += `<div class="r-name">${trimmed.replace('ИМЯ:', '').trim()}</div>`;
-        } else if (trimmed.startsWith('ДОЛЖНОСТЬ:')) {
-          html += `<div class="r-position">${trimmed.replace('ДОЛЖНОСТЬ:', '').trim()}</div>`;
-        } else if (trimmed.startsWith('КОНТАКТЫ:')) {
-          html += `<div class="r-contacts">${trimmed.replace('КОНТАКТЫ:', '').trim()}</div>`;
-        } else if (['О СЕБЕ:', 'ОПЫТ РАБОТЫ:', 'ОБРАЗОВАНИЕ:', 'НАВЫКИ:'].includes(trimmed)) {
-          html += `<div class="r-section-title">${trimmed.replace(':', '')}</div>`;
-        } else {
-          html += `<div class="r-line">${trimmed}</div>`;
-        }
-      });
+      const achievementsHtml = (d.experience || []).map(exp => {
+        const bullets = (exp.achievements || []).map(a =>
+          `<li>${a}</li>`
+        ).join('');
+        return `
+          <div class="cv-job">
+            <div class="cv-job-header">
+              <div>
+                <div class="cv-job-role">${exp.role || ''}</div>
+                <div class="cv-job-company">${exp.company || ''}</div>
+              </div>
+              <div class="cv-job-period">${exp.period || ''}</div>
+            </div>
+            <ul class="cv-bullets">${bullets}</ul>
+          </div>
+        `;
+      }).join('');
 
-      output.innerHTML = html;
+      wrap.innerHTML = `
+        <div class="cv-card">
+
+          <!-- ЛЕВАЯ КОЛОНКА -->
+          <div class="cv-left">
+            <div class="cv-avatar">${(d.name || 'A')[0].toUpperCase()}</div>
+            <div class="cv-left-name">${d.name || ''}</div>
+            <div class="cv-left-pos">${d.position || ''}</div>
+
+            <div class="cv-left-section">Контакты</div>
+            <div class="cv-contact-item">
+              <span class="cv-contact-icon">✉</span>${d.email || ''}
+            </div>
+            <div class="cv-contact-item">
+              <span class="cv-contact-icon">☎</span>${d.phone || ''}
+            </div>
+            <div class="cv-contact-item">
+              <span class="cv-contact-icon">◎</span>${d.city || ''}
+            </div>
+
+            <div class="cv-left-section">Навыки</div>
+            <div class="cv-skills-list">${skillsHtml}</div>
+
+            <div class="cv-left-section">Образование</div>
+            <div class="cv-edu-text">${d.education || ''}</div>
+          </div>
+
+          <!-- ПРАВАЯ КОЛОНКА -->
+          <div class="cv-right">
+            <div class="cv-right-section">Профессиональный профиль</div>
+            <p class="cv-summary">${d.summary || ''}</p>
+
+            <div class="cv-right-section">Опыт работы</div>
+            ${achievementsHtml}
+          </div>
+
+        </div>
+      `;
     }
 
     document.getElementById('downloadBtn').addEventListener('click', function () {
+      const el = document.getElementById('cvOutput');
       html2pdf().set({
-        margin: 15,
+        margin: 0,
         filename: 'resume.pdf',
-        html2canvas: { scale: 2 },
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).from(output).save();
+      }).from(el).save();
     });
   </script>
 

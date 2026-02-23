@@ -31,7 +31,7 @@ if (form) {
       const result = await response.json();
 
       if (result.resume) {
-        localStorage.setItem('resumeText', result.resume);
+        localStorage.setItem('resumeData', JSON.stringify(result.resume));
         window.location.href = 'result.html';
       } else {
         alert('Ошибка. Попробуй ещё раз.');
