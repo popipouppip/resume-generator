@@ -453,118 +453,219 @@ h1 {
   margin-bottom: 5px;
 }
 
-/* ===== ИНТЕРВЬЮ / ЧАТ ===== */
-.interview-step-label {
-  font-size: 13px;
-  color: #6e6e73;
-  font-weight: 500;
+/* ===== ИГРОВОЙ ИНТЕРФЕЙС (interview.html) ===== */
+
+.game-body {
+  background: #0f0f1a;
+  color: #e2e8f0;
+  min-height: 100vh;
 }
 
-.interview-page {
+/* Шапка */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 48px;
+  background: rgba(15, 15, 26, 0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid #2d2d4e;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 32px;
+}
+
+.game-logo {
+  color: #e2e8f0;
+  font-size: 20px;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+/* XP бар */
+.xp-wrap {
+  flex: 1;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.xp-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #a78bfa;
+}
+
+.xp-track {
+  height: 6px;
+  background: #2d2d4e;
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  border-radius: 100px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
+}
+
+/* Уведомление-достижение */
+.achievement {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  border: 1px solid #7c3aed;
+  color: #e2e8f0;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.4);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.achievement.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Страница */
+.game-page {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 40px 24px 40px;
-  min-height: calc(100vh - 65px);
+  padding: 32px 24px;
+  min-height: calc(100vh - 73px);
 }
 
-.interview-container {
+.game-container {
   width: 100%;
   max-width: 620px;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 145px);
+  height: calc(100vh - 137px);
 }
 
-.chat-window {
+/* Чат */
+.game-chat {
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   padding: 8px 4px 24px;
   scrollbar-width: thin;
-  scrollbar-color: #d2d2d7 transparent;
+  scrollbar-color: #2d2d4e transparent;
 }
 
-.chat-window::-webkit-scrollbar {
-  width: 4px;
-}
-.chat-window::-webkit-scrollbar-thumb {
-  background: #d2d2d7;
+.game-chat::-webkit-scrollbar { width: 4px; }
+.game-chat::-webkit-scrollbar-thumb {
+  background: #2d2d4e;
   border-radius: 4px;
 }
 
-.chat-msg {
-  max-width: 80%;
+/* Аватар + сообщение бота */
+.game-bot-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.game-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  color: #e2e8f0;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
+}
+
+.game-msg {
+  max-width: 78%;
   padding: 14px 18px;
   border-radius: 18px;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
   word-break: break-word;
 }
 
-.chat-msg.bot {
-  background: #ffffff;
-  color: #1d1d1f;
-  align-self: flex-start;
+.game-msg.bot {
+  background: #1e1e32;
+  color: #e2e8f0;
   border-bottom-left-radius: 4px;
-  box-shadow: 0 1px 12px rgba(0,0,0,0.07);
-  border: 1px solid #e5e5ea;
+  border: 1px solid #2d2d4e;
 }
 
-.chat-msg.user {
-  background: #0071e3;
+.game-msg.user {
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
   color: #fff;
   align-self: flex-end;
   border-bottom-right-radius: 4px;
+  margin-left: auto;
 }
 
-/* Typing indicator */
-.chat-msg.typing {
+/* Анимация точек */
+.game-msg.typing {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 16px 20px;
+  padding: 16px 18px;
   width: fit-content;
 }
 
-.chat-msg.typing span {
+.game-msg.typing span {
   display: inline-block;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #aeaeb2;
+  background: #7c3aed;
   animation: typingDot 1.2s infinite ease-in-out;
 }
 
-.chat-msg.typing span:nth-child(2) { animation-delay: 0.2s; }
-.chat-msg.typing span:nth-child(3) { animation-delay: 0.4s; }
+.game-msg.typing span:nth-child(2) { animation-delay: 0.2s; }
+.game-msg.typing span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes typingDot {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
   30% { transform: translateY(-6px); opacity: 1; }
 }
 
-/* Input area */
-.chat-input-area {
+/* Поле ввода */
+.game-input-area {
   display: flex;
   align-items: flex-end;
   gap: 10px;
   padding: 16px 0 8px;
-  border-top: 1px solid #e5e5ea;
+  border-top: 1px solid #2d2d4e;
   margin-top: 8px;
 }
 
-.chat-input {
+.game-input {
   flex: 1;
-  background: #fff;
-  border: 1px solid #d2d2d7;
+  background: #1e1e32;
+  border: 1px solid #2d2d4e;
   border-radius: 16px;
   padding: 13px 16px;
   font-size: 15px;
   font-family: inherit;
-  color: #1d1d1f;
+  color: #e2e8f0;
   outline: none;
   resize: none;
   line-height: 1.5;
@@ -573,20 +674,18 @@ h1 {
   overflow-y: auto;
 }
 
-.chat-input:focus {
-  border-color: #0071e3;
-  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+.game-input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
 }
 
-.chat-input::placeholder {
-  color: #aeaeb2;
-}
+.game-input::placeholder { color: #4a4a6a; }
 
-.chat-send-btn {
+.game-send-btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #0071e3;
+  background: linear-gradient(135deg, #7c3aed, #5b21b6);
   color: #fff;
   border: none;
   font-size: 20px;
@@ -595,18 +694,17 @@ h1 {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.2s, transform 0.1s;
-  line-height: 1;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
   padding-bottom: 1px;
 }
 
-.chat-send-btn:hover {
-  background: #0077ed;
+.game-send-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.55);
 }
 
-.chat-send-btn:active {
-  transform: scale(0.93);
-}
+.game-send-btn:active { transform: scale(0.93); }
 
 /* ===== АДАПТИВ ===== */
 @media (max-width: 600px) {
