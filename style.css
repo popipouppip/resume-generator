@@ -460,7 +460,7 @@ h1 {
   background-color: #c8a97a;
   background-image:
     linear-gradient(rgba(240, 218, 175, 0.72), rgba(240, 218, 175, 0.72)),
-    url('photo/pixel-old-brick-wall.png');
+    url('pixel-old-brick-wall.png');
   background-repeat: repeat;
   background-size: 220px auto;
   color: #1a0f05;
@@ -473,7 +473,7 @@ h1 {
   background-color: #0d0906;
   background-image:
     linear-gradient(rgba(8, 4, 2, 0.82), rgba(8, 4, 2, 0.82)),
-    url('photo/pixel-old-brick-wall.png');
+    url('pixel-old-brick-wall.png');
   background-repeat: repeat;
   background-size: 220px auto;
   color: #f5e6d0;
