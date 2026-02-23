@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Интервью — ResumeAI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo">ResumeAI</a>
+    <div class="interview-step-label">Шаг 2 из 2</div>
+  </header>
+
+  <main class="interview-page">
+    <div class="interview-container">
+      <div class="chat-window" id="chatWindow"></div>
+      <div class="chat-input-area" id="inputArea" style="display:none">
+        <textarea
+          class="chat-input"
+          id="userInput"
+          placeholder="Напиши ответ..."
+          rows="1"
+        ></textarea>
+        <button class="chat-send-btn" id="sendBtn">→</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const formData = JSON.parse(localStorage.getItem('formData') || '{}');
+    const firstName = (formData.name || 'друг').split(' ')[0];
+
+    const questions = [
+      `Привет, ${firstName}! Я помогу написать резюме, которое выделит тебя среди других 💙\n\nРасскажи — какое твоё главное профессиональное достижение? То, чем ты гордишься больше всего.`,
+      'Что тебе больше всего нравится в своей работе? Что заряжает энергией?',
+      'Чем ты отличаешься от других специалистов в своей области? Что делаешь лучше всего?',
+      'Какая у тебя цель на ближайшие 2–3 года? Куда хочешь прийти?',
+      'Последний вопрос 🙂 Есть что-то важное о себе, что хочешь добавить в резюме? Любой факт, который считаешь значимым.',
+    ];
+
+    const answers = [];
+    let currentQ = 0;
+
+    const chatWindow = document.getElementById('chatWindow');
+    const inputArea = document.getElementById('inputArea');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function addBotMessage(text, delay = 0) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const typing = document.createElement('div');
+          typing.className = 'chat-msg bot typing';
+          typing.innerHTML = '<span></span><span></span><span></span>';
+          chatWindow.appendChild(typing);
+          scrollToBottom();
+
+          setTimeout(() => {
+            typing.remove();
+            const msg = document.createElement('div');
+            msg.className = 'chat-msg bot';
+            msg.style.opacity = '0';
+            msg.style.transform = 'translateY(8px)';
+            // Handle newlines
+            msg.innerHTML = text.replace(/\n/g, '<br>');
+            chatWindow.appendChild(msg);
+            scrollToBottom();
+            requestAnimationFrame(() => {
+              msg.style.transition = 'opacity 0.3s, transform 0.3s';
+              msg.style.opacity = '1';
+              msg.style.transform = 'translateY(0)';
+            });
+            resolve();
+          }, 1200);
+        }, delay);
+      });
+    }
+
+    function addUserMessage(text) {
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg user';
+      msg.textContent = text;
+      chatWindow.appendChild(msg);
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function showInput() {
+      inputArea.style.display = 'flex';
+      userInput.focus();
+    }
+
+    function hideInput() {
+      inputArea.style.display = 'none';
+    }
+
+    async function askQuestion(index) {
+      await addBotMessage(questions[index]);
+      showInput();
+    }
+
+    async function handleAnswer() {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      hideInput();
+      userInput.value = '';
+      addUserMessage(text);
+      answers.push(text);
+      currentQ++;
+
+      if (currentQ < questions.length) {
+        await addBotMessage('', 300); // small pause
+        // Remove the empty typing placeholder trick — just ask next
+        await askQuestion(currentQ);
+      } else {
+        await generateResume();
+      }
+    }
+
+    async function generateResume() {
+      await addBotMessage('Отлично! Собираю всё воедино и пишу твоё резюме... ✨', 400);
+
+      const payload = {
+        ...formData,
+        interview: {
+          achievement: answers[0] || '',
+          enjoys: answers[1] || '',
+          strength: answers[2] || '',
+          goal: answers[3] || '',
+          extra: answers[4] || '',
+        }
+      };
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (result.resume) {
+          localStorage.setItem('resumeData', JSON.stringify(result.resume));
+          await addBotMessage('Готово! Переходим к твоему резюме 🎉', 600);
+          setTimeout(() => {
+            window.location.href = 'result.html';
+          }, 1200);
+        } else {
+          await addBotMessage('Что-то пошло не так. <a href="form.html" style="color:#0071e3">Попробуй снова</a>.', 400);
+        }
+      } catch {
+        await addBotMessage('Ошибка соединения. <a href="form.html" style="color:#0071e3">Попробуй снова</a>.', 400);
+      }
+    }
+
+    sendBtn.addEventListener('click', handleAnswer);
+    userInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleAnswer();
+      }
+    });
+
+    // Auto-resize textarea
+    userInput.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Start
+    askQuestion(0);
+  </script>
+
+</body>
+</html>

@@ -3,9 +3,24 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, position, email, phone, city, company, period, duties, education, skills, about } = req.body;
+  const {
+    name, position, email, phone, city,
+    company, period, duties, education, skills, about,
+    interview
+  } = req.body;
+
+  const interviewBlock = interview ? `
+Ответы кандидата на интервью:
+- Главное достижение: ${interview.achievement || '—'}
+- Что нравится в работе: ${interview.enjoys || '—'}
+- В чём сильнее других: ${interview.strength || '—'}
+- Карьерная цель: ${interview.goal || '—'}
+- Дополнительно: ${interview.extra || '—'}
+` : '';
 
   const prompt = `Ты профессиональный карьерный консультант с 15-летним опытом. На основе данных кандидата напиши профессиональное резюме. Верни ТОЛЬКО валидный JSON без markdown, без пояснений.
+
+ВАЖНО: Весь текст резюме пиши от первого лица — "я работал", "я разработал", "я увеличил". Не пиши "кандидат" или "он/она".
 
 Данные кандидата:
 Имя: ${name}
@@ -19,7 +34,7 @@ Email: ${email}
 Образование: ${education}
 Навыки: ${skills}
 О себе: ${about}
-
+${interviewBlock}
 Верни JSON в таком формате:
 {
   "name": "полное имя",
@@ -27,16 +42,16 @@ Email: ${email}
   "email": "email",
   "phone": "телефон",
   "city": "город",
-  "summary": "3-4 предложения. Сильное профессиональное резюме кандидата. Подчеркни экспертизу, ключевые достижения и ценность для работодателя. Пиши от третьего лица.",
+  "summary": "3-4 предложения от первого лица. Сильное профессиональное резюме. Подчеркни экспертизу, ключевые достижения и ценность для работодателя. Например: 'Я специалист с X-летним опытом...'",
   "experience": [
     {
       "company": "название компании",
       "role": "должность",
       "period": "период",
       "achievements": [
-        "Конкретное достижение с цифрами или результатом",
-        "Конкретное достижение с цифрами или результатом",
-        "Конкретное достижение с цифрами или результатом"
+        "Я разработал/внедрил/увеличил... — конкретный результат с цифрами",
+        "Я разработал/внедрил/увеличил... — конкретный результат",
+        "Я разработал/внедрил/увеличил... — конкретный результат"
       ]
     }
   ],
@@ -55,14 +70,13 @@ Email: ${email}
         model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 1200,
+        max_tokens: 1500,
       }),
     });
 
     const data = await response.json();
     const text = data.choices[0].message.content;
 
-    // Извлекаем JSON из ответа
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error('No JSON found');
 

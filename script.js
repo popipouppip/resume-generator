@@ -1,11 +1,7 @@
 const form = document.getElementById('resumeForm');
 if (form) {
-  form.addEventListener('submit', async function (e) {
+  form.addEventListener('submit', function (e) {
     e.preventDefault();
-
-    const btn = document.getElementById('generateBtn');
-    btn.textContent = 'Генерирую...';
-    btn.disabled = true;
 
     const data = {
       name:      document.getElementById('name').value,
@@ -21,27 +17,7 @@ if (form) {
       about:     document.getElementById('about').value,
     };
 
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json();
-
-      if (result.resume) {
-        localStorage.setItem('resumeData', JSON.stringify(result.resume));
-        window.location.href = 'result.html';
-      } else {
-        alert('Ошибка. Попробуй ещё раз.');
-        btn.textContent = 'Сгенерировать резюме →';
-        btn.disabled = false;
-      }
-    } catch (error) {
-      alert('Ошибка соединения. Попробуй ещё раз.');
-      btn.textContent = 'Сгенерировать резюме →';
-      btn.disabled = false;
-    }
+    localStorage.setItem('formData', JSON.stringify(data));
+    window.location.href = 'interview.html';
   });
 }
