@@ -457,12 +457,12 @@ h1 {
 
 /* Пергаментная тема — index.html и form.html */
 .game-body {
-  background-color: #f0e3c0;
+  background-color: #c8a97a;
   background-image:
-    repeating-linear-gradient(0deg,   transparent, transparent 49px, rgba(0,0,0,0.04) 49px, rgba(0,0,0,0.04) 50px),
-    repeating-linear-gradient(90deg,  transparent, transparent 49px, rgba(0,0,0,0.04) 49px, rgba(0,0,0,0.04) 50px),
-    radial-gradient(ellipse at 85% 45%, rgba(249,115,22,0.16) 0%, transparent 52%),
-    radial-gradient(ellipse at 15% 45%, rgba(249,115,22,0.09) 0%, transparent 42%);
+    linear-gradient(rgba(240, 218, 175, 0.72), rgba(240, 218, 175, 0.72)),
+    url('photo/pixel-old-brick-wall.png');
+  background-repeat: repeat;
+  background-size: 220px auto;
   color: #1a0f05;
   min-height: 100vh;
   font-family: 'Cinzel', Georgia, serif;
@@ -472,10 +472,10 @@ h1 {
 .game-body.dark {
   background-color: #0d0906;
   background-image:
-    repeating-linear-gradient(0deg,   transparent, transparent 49px, rgba(0,0,0,0.18) 49px, rgba(0,0,0,0.18) 50px),
-    repeating-linear-gradient(90deg,  transparent, transparent 49px, rgba(0,0,0,0.18) 49px, rgba(0,0,0,0.18) 50px),
-    radial-gradient(ellipse at 15% 50%, rgba(249,115,22,0.07) 0%, transparent 40%),
-    radial-gradient(ellipse at 85% 50%, rgba(249,115,22,0.07) 0%, transparent 40%);
+    linear-gradient(rgba(8, 4, 2, 0.82), rgba(8, 4, 2, 0.82)),
+    url('photo/pixel-old-brick-wall.png');
+  background-repeat: repeat;
+  background-size: 220px auto;
   color: #f5e6d0;
 }
 
@@ -749,48 +749,18 @@ h1 {
   to   { opacity: 1;   transform: translateX(-50%) scale(1.14); }
 }
 
-.dtorch-fire {
-  width: 22px;
-  height: 30px;
-  position: relative;
+.dtorch-img {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
   animation: dt-flicker 0.17s ease-in-out infinite alternate;
   flex-shrink: 0;
+  mix-blend-mode: screen;
 }
 
 @keyframes dt-flicker {
   0%   { transform: scaleX(1)    rotate(-4deg); filter: brightness(0.88); }
   100% { transform: scaleX(1.18) rotate(4deg);  filter: brightness(1.15); }
-}
-
-.dtorch-fire::before {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 18px; height: 26px;
-  background: radial-gradient(ellipse at bottom, #ff9500 0%, #ff6b00 45%, #cc3300 80%, transparent 100%);
-  border-radius: 55% 55% 30% 30% / 65% 65% 35% 35%;
-}
-
-.dtorch-fire::after {
-  content: '';
-  position: absolute;
-  bottom: 3px; left: 50%; transform: translateX(-50%);
-  width: 9px; height: 15px;
-  background: radial-gradient(ellipse at bottom, #ffe000 0%, #ff9500 65%, transparent 100%);
-  border-radius: 55% 55% 30% 30% / 65% 65% 35% 35%;
-}
-
-.dtorch-handle {
-  width: 8px; height: 42px;
-  background: linear-gradient(to bottom, #92400e, #78350f, #5c2a08);
-  border-radius: 3px 3px 5px 5px;
-}
-
-.dtorch-mount {
-  width: 18px; height: 9px;
-  background: linear-gradient(to bottom, #44301e, #2d1f12);
-  border-radius: 3px;
-  border: 1px solid #1a100a;
 }
 
 .coin {
@@ -815,11 +785,25 @@ h1 {
 
 .ivy {
   position: fixed;
-  font-size: 28px;
   z-index: 2;
   pointer-events: none;
   user-select: none;
-  filter: drop-shadow(0 2px 4px rgba(21,128,61,0.45));
+}
+
+.ivy img {
+  width: 72px;
+  height: 72px;
+  image-rendering: pixelated;
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(21,128,61,0.5));
+}
+
+.game-body:not(.dark) .ivy img {
+  mix-blend-mode: multiply;
+}
+
+.game-body.dark .ivy img {
+  mix-blend-mode: screen;
 }
 
 .ivy-tl { top: 74px;    left: 8px;   animation: ivy-l 3.5s 0.0s ease-in-out infinite; }
