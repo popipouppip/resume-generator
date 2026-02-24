@@ -6,6 +6,454 @@
   <title>Твоё резюме — ResumeAI</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* ===== ПЕРЕКЛЮЧАТЕЛЬ ШАБЛОНОВ ===== */
+    .template-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 32px 24px 0;
+    }
+
+    .tpl-btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.06);
+      color: rgba(245,245,247,0.6);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+    }
+
+    .tpl-btn:hover {
+      background: rgba(255,255,255,0.1);
+      color: #f5f5f7;
+    }
+
+    .tpl-btn.active {
+      background: #0071e3;
+      border-color: #0071e3;
+      color: #fff;
+    }
+
+    .result-page {
+      padding: 32px 24px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .cv-wrap { max-width: 820px; width: 100%; }
+
+    .result-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .edit-link {
+      color: rgba(245,245,247,0.5);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    .edit-link:hover { color: #f5f5f7; }
+
+    /* ===== ШАБЛОН 1: КЛАССИКА Ч/Б ===== */
+    .cv-classic {
+      background: #ffffff;
+      border-radius: 4px;
+      overflow: hidden;
+      font-family: 'Georgia', 'Times New Roman', serif;
+    }
+
+    .cv-classic .cv-top {
+      padding: 44px 52px 28px;
+      border-bottom: 2px solid #000;
+    }
+
+    .cv-classic .cv-c-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: #000;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .cv-classic .cv-c-pos {
+      font-size: 15px;
+      color: #333;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .cv-classic .cv-c-contacts {
+      font-size: 12px;
+      color: #555;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .cv-classic .cv-body {
+      padding: 32px 52px 44px;
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 40px;
+    }
+
+    .cv-classic .cv-c-section {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: #000;
+      border-bottom: 1px solid #000;
+      padding-bottom: 6px;
+      margin-bottom: 16px;
+      margin-top: 28px;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .cv-classic .cv-c-section:first-child { margin-top: 0; }
+
+    .cv-classic .cv-c-job-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #000;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .cv-classic .cv-c-job-meta {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 8px;
+      font-family: -apple-system, sans-serif;
+    }
+
+    .cv-classic .cv-c-bullets {
+      padding-left: 16px;
+      margin-bottom: 16px;
+    }
+
+    .cv-classic .cv-c-bullets li {
+      font-size: 13px;
+      color: #222;
+      line-height: 1.7;
+      margin-bottom: 4px;
+    }
+
+    .cv-classic .cv-c-summary {
+      font-size: 14px;
+      color: #222;
+      line-height: 1.8;
+    }
+
+    .cv-classic .cv-c-skill {
+      display: inline-block;
+      font-size: 12px;
+      color: #333;
+      border: 1px solid #bbb;
+      padding: 3px 10px;
+      margin: 3px 3px 3px 0;
+      font-family: -apple-system, sans-serif;
+      border-radius: 2px;
+    }
+
+    .cv-classic .cv-c-edu {
+      font-size: 13px;
+      color: #333;
+      line-height: 1.6;
+      font-family: -apple-system, sans-serif;
+    }
+
+    /* ===== ШАБЛОН 2: ТЁМНЫЙ (как сайт) ===== */
+    .cv-dark {
+      background: #0a0a0d;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+    }
+
+    .cv-dark .cv-d-left {
+      background: rgba(255,255,255,0.04);
+      border-right: 1px solid rgba(255,255,255,0.07);
+      padding: 40px 28px;
+    }
+
+    .cv-dark .cv-d-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #0071e3;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .cv-dark .cv-d-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #f5f5f7;
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .cv-dark .cv-d-pos {
+      font-size: 12px;
+      color: #2997ff;
+      margin-bottom: 28px;
+    }
+
+    .cv-dark .cv-d-section {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.3);
+      margin: 20px 0 10px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .cv-dark .cv-d-contact {
+      font-size: 12px;
+      color: rgba(245,245,247,0.65);
+      margin-bottom: 7px;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+
+    .cv-dark .cv-d-skill {
+      display: inline-block;
+      background: rgba(0,113,227,0.15);
+      border: 1px solid rgba(0,113,227,0.3);
+      color: #2997ff;
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin: 3px 3px 3px 0;
+    }
+
+    .cv-dark .cv-d-edu {
+      font-size: 12px;
+      color: rgba(245,245,247,0.55);
+      line-height: 1.6;
+    }
+
+    .cv-dark .cv-d-right {
+      padding: 40px 36px;
+    }
+
+    .cv-dark .cv-d-right-section {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .cv-dark .cv-d-summary {
+      font-size: 14px;
+      color: rgba(245,245,247,0.75);
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .cv-dark .cv-d-job { margin-bottom: 22px; }
+
+    .cv-dark .cv-d-job-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .cv-dark .cv-d-job-role {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f5f5f7;
+    }
+
+    .cv-dark .cv-d-job-co {
+      font-size: 12px;
+      color: #2997ff;
+      margin-top: 2px;
+    }
+
+    .cv-dark .cv-d-job-period {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      white-space: nowrap;
+      margin-left: 12px;
+    }
+
+    .cv-dark .cv-d-bullets { padding-left: 16px; }
+
+    .cv-dark .cv-d-bullets li {
+      font-size: 13px;
+      color: rgba(245,245,247,0.65);
+      line-height: 1.7;
+      margin-bottom: 4px;
+    }
+
+    /* ===== ШАБЛОН 3: СОЛИДНЫЙ (Navy + Gold) ===== */
+    .cv-exec {
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+    }
+
+    .cv-exec .cv-e-left {
+      background: #1b2f4e;
+      padding: 44px 28px;
+      color: #fff;
+    }
+
+    .cv-exec .cv-e-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 6px;
+      background: #c9a84c;
+      color: #1b2f4e;
+      font-size: 24px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .cv-exec .cv-e-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+
+    .cv-exec .cv-e-pos {
+      font-size: 12px;
+      color: #c9a84c;
+      letter-spacing: 0.5px;
+      margin-bottom: 28px;
+      font-style: italic;
+    }
+
+    .cv-exec .cv-e-section {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: #c9a84c;
+      margin: 22px 0 10px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(201,168,76,0.25);
+    }
+
+    .cv-exec .cv-e-contact {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 7px;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+
+    .cv-exec .cv-e-skill {
+      display: inline-block;
+      background: rgba(201,168,76,0.15);
+      border: 1px solid rgba(201,168,76,0.35);
+      color: #c9a84c;
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 3px;
+      margin: 3px 3px 3px 0;
+    }
+
+    .cv-exec .cv-e-edu {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.6;
+    }
+
+    .cv-exec .cv-e-right {
+      padding: 44px 40px;
+      background: #fff;
+    }
+
+    .cv-exec .cv-e-right-section {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: #1b2f4e;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #c9a84c;
+    }
+
+    .cv-exec .cv-e-summary {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .cv-exec .cv-e-job { margin-bottom: 24px; }
+
+    .cv-exec .cv-e-job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .cv-exec .cv-e-job-role {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1b2f4e;
+    }
+
+    .cv-exec .cv-e-job-co {
+      font-size: 12px;
+      color: #c9a84c;
+      margin-top: 2px;
+    }
+
+    .cv-exec .cv-e-job-period {
+      font-size: 11px;
+      color: #888;
+      white-space: nowrap;
+      margin-left: 12px;
+    }
+
+    .cv-exec .cv-e-bullets { padding-left: 16px; }
+
+    .cv-exec .cv-e-bullets li {
+      font-size: 13.5px;
+      color: #333;
+      line-height: 1.7;
+      margin-bottom: 4px;
+    }
+  </style>
 </head>
 <body>
 
@@ -14,89 +462,175 @@
     <button class="btn" id="downloadBtn">Скачать PDF</button>
   </header>
 
+  <div class="template-switcher">
+    <button class="tpl-btn active" data-t="1">Классика Ч/Б</button>
+    <button class="tpl-btn" data-t="2">Тёмный</button>
+    <button class="tpl-btn" data-t="3">Солидный</button>
+  </div>
+
   <main class="result-page">
-    <div class="cv-wrap" id="cvOutput">
-      <!-- Резюме рендерится сюда -->
+    <div class="cv-wrap" id="cvOutput"></div>
+    <div class="result-actions">
+      <a href="form.html" class="edit-link">← Изменить данные</a>
     </div>
-    <a href="form.html" class="edit-link">← Изменить данные</a>
   </main>
 
   <script>
-    const raw = localStorage.getItem('resumeData');
+    const raw  = localStorage.getItem('resumeData');
     const wrap = document.getElementById('cvOutput');
+    let currentTemplate = 1;
 
     if (!raw) {
-      wrap.innerHTML = '<p style="padding:40px;color:#6e6e73">Резюме не найдено. <a href="form.html" style="color:#0071e3">Вернись и заполни форму.</a></p>';
+      wrap.innerHTML = '<p style="padding:40px;color:rgba(245,245,247,0.4)">Резюме не найдено. <a href="form.html" style="color:#2997ff">Вернись и заполни форму.</a></p>';
     } else {
       const d = JSON.parse(raw);
 
-      const skillsHtml = (d.skills || []).map(s =>
-        `<span class="cv-skill">${s}</span>`
-      ).join('');
+      function renderClassic(d) {
+        const skills = (d.skills || []).map(s => `<span class="cv-c-skill">${s}</span>`).join('');
+        const jobs = (d.experience || []).map(exp => {
+          const bullets = (exp.achievements || []).map(a => `<li>${a}</li>`).join('');
+          return `
+            <div>
+              <div class="cv-c-job-title">${exp.role || ''}</div>
+              <div class="cv-c-job-meta">${exp.company || ''} · ${exp.period || ''}</div>
+              <ul class="cv-c-bullets">${bullets}</ul>
+            </div>`;
+        }).join('');
 
-      const achievementsHtml = (d.experience || []).map(exp => {
-        const bullets = (exp.achievements || []).map(a =>
-          `<li>${a}</li>`
-        ).join('');
         return `
-          <div class="cv-job">
-            <div class="cv-job-header">
-              <div>
-                <div class="cv-job-role">${exp.role || ''}</div>
-                <div class="cv-job-company">${exp.company || ''}</div>
+          <div class="cv-classic">
+            <div class="cv-top">
+              <div class="cv-c-name">${d.name || ''}</div>
+              <div class="cv-c-pos">${d.position || ''}</div>
+              <div class="cv-c-contacts">
+                <span>${d.email || ''}</span>
+                <span>${d.phone || ''}</span>
+                <span>${d.city || ''}</span>
               </div>
-              <div class="cv-job-period">${exp.period || ''}</div>
             </div>
-            <ul class="cv-bullets">${bullets}</ul>
-          </div>
-        `;
-      }).join('');
-
-      wrap.innerHTML = `
-        <div class="cv-card">
-
-          <!-- ЛЕВАЯ КОЛОНКА -->
-          <div class="cv-left">
-            <div class="cv-avatar">${(d.name || 'A')[0].toUpperCase()}</div>
-            <div class="cv-left-name">${d.name || ''}</div>
-            <div class="cv-left-pos">${d.position || ''}</div>
-
-            <div class="cv-left-section">Контакты</div>
-            <div class="cv-contact-item">
-              <span class="cv-contact-icon">✉</span>${d.email || ''}
+            <div class="cv-body">
+              <div>
+                <div class="cv-c-section">Профессиональный профиль</div>
+                <p class="cv-c-summary">${d.summary || ''}</p>
+                <div class="cv-c-section">Опыт работы</div>
+                ${jobs}
+              </div>
+              <div>
+                <div class="cv-c-section">Навыки</div>
+                ${skills}
+                <div class="cv-c-section">Образование</div>
+                <div class="cv-c-edu">${d.education || ''}</div>
+              </div>
             </div>
-            <div class="cv-contact-item">
-              <span class="cv-contact-icon">☎</span>${d.phone || ''}
+          </div>`;
+      }
+
+      function renderDark(d) {
+        const skills = (d.skills || []).map(s => `<span class="cv-d-skill">${s}</span>`).join('');
+        const jobs = (d.experience || []).map(exp => {
+          const bullets = (exp.achievements || []).map(a => `<li>${a}</li>`).join('');
+          return `
+            <div class="cv-d-job">
+              <div class="cv-d-job-header">
+                <div>
+                  <div class="cv-d-job-role">${exp.role || ''}</div>
+                  <div class="cv-d-job-co">${exp.company || ''}</div>
+                </div>
+                <div class="cv-d-job-period">${exp.period || ''}</div>
+              </div>
+              <ul class="cv-d-bullets">${bullets}</ul>
+            </div>`;
+        }).join('');
+
+        return `
+          <div class="cv-dark">
+            <div class="cv-d-left">
+              <div class="cv-d-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+              <div class="cv-d-name">${d.name || ''}</div>
+              <div class="cv-d-pos">${d.position || ''}</div>
+              <div class="cv-d-section">Контакты</div>
+              <div class="cv-d-contact">${d.email || ''}</div>
+              <div class="cv-d-contact">${d.phone || ''}</div>
+              <div class="cv-d-contact">${d.city || ''}</div>
+              <div class="cv-d-section">Навыки</div>
+              ${skills}
+              <div class="cv-d-section">Образование</div>
+              <div class="cv-d-edu">${d.education || ''}</div>
             </div>
-            <div class="cv-contact-item">
-              <span class="cv-contact-icon">◎</span>${d.city || ''}
+            <div class="cv-d-right">
+              <div class="cv-d-right-section">Профессиональный профиль</div>
+              <p class="cv-d-summary">${d.summary || ''}</p>
+              <div class="cv-d-right-section">Опыт работы</div>
+              ${jobs}
             </div>
+          </div>`;
+      }
 
-            <div class="cv-left-section">Навыки</div>
-            <div class="cv-skills-list">${skillsHtml}</div>
+      function renderExec(d) {
+        const skills = (d.skills || []).map(s => `<span class="cv-e-skill">${s}</span>`).join('');
+        const jobs = (d.experience || []).map(exp => {
+          const bullets = (exp.achievements || []).map(a => `<li>${a}</li>`).join('');
+          return `
+            <div class="cv-e-job">
+              <div class="cv-e-job-header">
+                <div>
+                  <div class="cv-e-job-role">${exp.role || ''}</div>
+                  <div class="cv-e-job-co">${exp.company || ''}</div>
+                </div>
+                <div class="cv-e-job-period">${exp.period || ''}</div>
+              </div>
+              <ul class="cv-e-bullets">${bullets}</ul>
+            </div>`;
+        }).join('');
 
-            <div class="cv-left-section">Образование</div>
-            <div class="cv-edu-text">${d.education || ''}</div>
-          </div>
+        return `
+          <div class="cv-exec">
+            <div class="cv-e-left">
+              <div class="cv-e-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+              <div class="cv-e-name">${d.name || ''}</div>
+              <div class="cv-e-pos">${d.position || ''}</div>
+              <div class="cv-e-section">Контакты</div>
+              <div class="cv-e-contact">${d.email || ''}</div>
+              <div class="cv-e-contact">${d.phone || ''}</div>
+              <div class="cv-e-contact">${d.city || ''}</div>
+              <div class="cv-e-section">Навыки</div>
+              ${skills}
+              <div class="cv-e-section">Образование</div>
+              <div class="cv-e-edu">${d.education || ''}</div>
+            </div>
+            <div class="cv-e-right">
+              <div class="cv-e-right-section">Профессиональный профиль</div>
+              <p class="cv-e-summary">${d.summary || ''}</p>
+              <div class="cv-e-right-section">Опыт работы</div>
+              ${jobs}
+            </div>
+          </div>`;
+      }
 
-          <!-- ПРАВАЯ КОЛОНКА -->
-          <div class="cv-right">
-            <div class="cv-right-section">Профессиональный профиль</div>
-            <p class="cv-summary">${d.summary || ''}</p>
+      function render(n) {
+        if (n === 1) wrap.innerHTML = renderClassic(d);
+        if (n === 2) wrap.innerHTML = renderDark(d);
+        if (n === 3) wrap.innerHTML = renderExec(d);
+      }
 
-            <div class="cv-right-section">Опыт работы</div>
-            ${achievementsHtml}
-          </div>
+      render(1);
 
-        </div>
-      `;
+      document.querySelectorAll('.tpl-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          currentTemplate = parseInt(this.dataset.t);
+          render(currentTemplate);
+        });
+      });
     }
 
     document.getElementById('downloadBtn').addEventListener('click', function () {
       const el = document.getElementById('cvOutput');
+      const names = { 1: 'resume-classic', 2: 'resume-dark', 3: 'resume-executive' };
       html2pdf().set({
         margin: 0,
-        filename: 'resume.pdf',
+        filename: (names[currentTemplate] || 'resume') + '.pdf',
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
