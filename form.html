@@ -88,8 +88,59 @@
     }
     .form-submit-note {
       font-size: 13px;
-      color: #3d3d52;
+      color: rgba(245,245,247,0.3);
     }
+
+    /* Необязательный тег */
+    .optional-tag {
+      font-size: 10px;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: rgba(245,245,247,0.28);
+      margin-left: auto;
+      background: rgba(255,255,255,0.06);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Карточка языка */
+    .lang-card {
+      padding: 18px 24px !important;
+      margin-bottom: 20px !important;
+    }
+    .lang-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .lang-info { display: flex; flex-direction: column; gap: 3px; }
+    .lang-hint {
+      font-size: 12px;
+      color: rgba(245,245,247,0.35);
+      font-family: inherit;
+    }
+    .lang-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 8px;
+      padding: 9px 36px 9px 14px;
+      color: #f5f5f7;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+      min-width: 170px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255%2C255%2C255%2C0.4)' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      transition: border-color 0.2s;
+    }
+    .lang-select:focus { border-color: #0071e3; }
+    .lang-select option { background: #1c1c1e; color: #f5f5f7; }
   </style>
 </head>
 <body>
@@ -125,6 +176,25 @@
     <div class="form-container">
 
       <form id="resumeForm">
+
+        <!-- Язык резюме -->
+        <div class="form-card lang-card">
+          <div class="lang-row">
+            <div class="lang-info">
+              <div class="form-card-title" style="margin-bottom:0"><span>🌐</span> Язык резюме</div>
+              <span class="lang-hint">AI напишет весь текст на выбранном языке</span>
+            </div>
+            <select id="language" class="lang-select">
+              <option value="ru">🇷🇺 Русский</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="fr">🇫🇷 Français</option>
+              <option value="es">🇪🇸 Español</option>
+              <option value="it">🇮🇹 Italiano</option>
+              <option value="pl">🇵🇱 Polski</option>
+            </select>
+          </div>
+        </div>
 
         <!-- Личные данные -->
         <div class="form-card">
@@ -196,6 +266,32 @@
           <div class="field">
             <label>Пару слов о себе (необязательно)</label>
             <textarea id="about" rows="3" placeholder="Ответственный, быстро обучаюсь, люблю решать сложные задачи..."></textarea>
+          </div>
+        </div>
+
+        <!-- Ссылки -->
+        <div class="form-card">
+          <div class="form-card-title"><span>🔗</span> Ссылки <span class="optional-tag">необязательно</span></div>
+          <div class="field">
+            <label>LinkedIn</label>
+            <input type="url" id="linkedin" placeholder="linkedin.com/in/your-name">
+          </div>
+          <div class="field">
+            <label>GitHub</label>
+            <input type="url" id="github" placeholder="github.com/your-name">
+          </div>
+          <div class="field">
+            <label>Портфолио / Сайт</label>
+            <input type="url" id="portfolio" placeholder="yourportfolio.com">
+          </div>
+        </div>
+
+        <!-- Целевая вакансия -->
+        <div class="form-card">
+          <div class="form-card-title"><span>🎯</span> Целевая вакансия <span class="optional-tag">необязательно</span></div>
+          <div class="field">
+            <label>Вставь текст вакансии — AI адаптирует резюме под её ключевые слова</label>
+            <textarea id="jobDescription" rows="5" placeholder="Скопируй и вставь описание вакансии сюда. AI проанализирует требования и адаптирует твоё резюме так, чтобы оно прошло ATS-фильтр и зацепило рекрутера..."></textarea>
           </div>
         </div>
 

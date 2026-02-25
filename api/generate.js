@@ -6,17 +6,26 @@ module.exports = async function handler(req, res) {
   const {
     name, position, email, phone, city,
     company, period, duties, education, skills, about,
+    language, linkedin, github, portfolio, jobDescription,
     interview
   } = req.body;
 
+  // Определяем язык вывода
+  const langNames = {
+    ru: 'Russian', en: 'English', de: 'German',
+    fr: 'French', es: 'Spanish', it: 'Italian', pl: 'Polish'
+  };
+  const targetLang = langNames[language] || 'Russian';
+
+  // Блок с ответами из интервью
   let interviewBlock = '';
   if (interview) {
     interviewBlock = `
-Ответы кандидата на интервью:
-- Главное достижение: ${interview.achievement || '—'}
-- Что нравится в работе: ${interview.enjoys || '—'}
-- В чём сильнее других: ${interview.strength || '—'}
-- Карьерная цель: ${interview.goal || '—'}`;
+Interview answers:
+- Main achievement: ${interview.achievement || '—'}
+- What they enjoy most: ${interview.enjoys || '—'}
+- Strength vs others: ${interview.strength || '—'}
+- Career goal: ${interview.goal || '—'}`;
 
     if (interview.specific1_q && interview.specific1_a) {
       interviewBlock += `\n- ${interview.specific1_q} — ${interview.specific1_a}`;
@@ -25,50 +34,57 @@ module.exports = async function handler(req, res) {
       interviewBlock += `\n- ${interview.specific2_q} — ${interview.specific2_a}`;
     }
     if (interview.extra) {
-      interviewBlock += `\n- Дополнительно: ${interview.extra}`;
+      interviewBlock += `\n- Additional: ${interview.extra}`;
     }
   }
 
-  const prompt = `Ты профессиональный карьерный консультант с 15-летним опытом. На основе данных кандидата напиши профессиональное резюме. Верни ТОЛЬКО валидный JSON без markdown, без пояснений.
+  // Блок с вакансией (если есть)
+  const jobBlock = jobDescription
+    ? `\nTarget job vacancy — adapt resume keywords to match this:\n${jobDescription}`
+    : '';
 
-ВАЖНО: Весь текст резюме пиши от первого лица — "я работал", "я разработал", "я увеличил". Не пиши "кандидат" или "он/она". Используй живые, конкретные детали из ответов на интервью — они делают резюме настоящим, а не шаблонным.
+  const prompt = `You are a professional career consultant with 15 years of experience. Write a professional resume based on the candidate's data. Return ONLY valid JSON, no markdown, no explanations.
 
-Данные кандидата:
-Имя: ${name}
-Должность: ${position}
+OUTPUT LANGUAGE: Write ALL resume text (summary, achievements, education) entirely in ${targetLang}. Every single word of generated content must be in ${targetLang}.
+
+WRITING STYLE: Write in first person ("I developed", "I managed", "I increased" — translated to ${targetLang}). Use concrete details from the interview answers to make the resume personal and authentic, not generic.
+${jobDescription ? '\nJOB MATCHING: Naturally incorporate relevant keywords and requirements from the target vacancy into the summary and achievements. Do not copy-paste, integrate naturally.' : ''}
+Candidate data:
+Name: ${name}
+Desired position: ${position}
 Email: ${email}
-Телефон: ${phone}
-Город: ${city}
-Компания: ${company}
-Период: ${period}
-Обязанности: ${duties}
-Образование: ${education}
-Навыки: ${skills}
-О себе: ${about}
-${interviewBlock}
+Phone: ${phone}
+City: ${city}
+Company / Role: ${company}
+Period: ${period}
+Duties / Achievements: ${duties}
+Education: ${education}
+Skills: ${skills}
+About: ${about}
+${interviewBlock}${jobBlock}
 
-Верни JSON в таком формате:
+Return JSON in this exact format:
 {
-  "name": "полное имя",
-  "position": "желаемая должность",
+  "name": "full name",
+  "position": "desired position",
   "email": "email",
-  "phone": "телефон",
-  "city": "город",
-  "summary": "3-4 предложения от первого лица. Живое, личное, сильное. Используй детали из интервью. Например: 'Я специалист с X-летним опытом...'",
+  "phone": "phone",
+  "city": "city",
+  "summary": "3-4 sentences in first person in ${targetLang}. Personal, strong, specific. Include interview details.",
   "experience": [
     {
-      "company": "название компании",
-      "role": "должность",
-      "period": "период",
+      "company": "company name",
+      "role": "position title",
+      "period": "period",
       "achievements": [
-        "Я разработал/внедрил/достиг... — конкретный результат с деталями из интервью",
-        "Я разработал/внедрил/достиг... — конкретный результат",
-        "Я разработал/внедрил/достиг... — конкретный результат"
+        "First-person achievement with specific result — in ${targetLang}",
+        "First-person achievement with specific result — in ${targetLang}",
+        "First-person achievement with specific result — in ${targetLang}"
       ]
     }
   ],
-  "education": "учебное заведение и специальность",
-  "skills": ["навык1", "навык2", "навык3", "навык4", "навык5", "навык6"]
+  "education": "institution and specialization — in ${targetLang}",
+  "skills": ["skill1", "skill2", "skill3", "skill4", "skill5", "skill6"]
 }`;
 
   try {
@@ -93,6 +109,12 @@ ${interviewBlock}
     if (!jsonMatch) throw new Error('No JSON found');
 
     const resumeData = JSON.parse(jsonMatch[0]);
+
+    // Добавляем ссылки из формы (AI их не генерирует, просто передаём)
+    if (linkedin)  resumeData.linkedin  = linkedin;
+    if (github)    resumeData.github    = github;
+    if (portfolio) resumeData.portfolio = portfolio;
+
     res.status(200).json({ resume: resumeData });
 
   } catch (error) {

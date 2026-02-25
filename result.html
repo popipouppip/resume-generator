@@ -503,9 +503,12 @@
               <div class="cv-c-name">${d.name || ''}</div>
               <div class="cv-c-pos">${d.position || ''}</div>
               <div class="cv-c-contacts">
-                <span>${d.email || ''}</span>
-                <span>${d.phone || ''}</span>
-                <span>${d.city || ''}</span>
+                ${d.email ? `<span>${d.email}</span>` : ''}
+                ${d.phone ? `<span>${d.phone}</span>` : ''}
+                ${d.city  ? `<span>${d.city}</span>`  : ''}
+                ${d.linkedin  ? `<span>${d.linkedin}</span>`  : ''}
+                ${d.github    ? `<span>${d.github}</span>`    : ''}
+                ${d.portfolio ? `<span>${d.portfolio}</span>` : ''}
               </div>
             </div>
             <div class="cv-body">
@@ -549,9 +552,12 @@
               <div class="cv-d-name">${d.name || ''}</div>
               <div class="cv-d-pos">${d.position || ''}</div>
               <div class="cv-d-section">Контакты</div>
-              <div class="cv-d-contact">${d.email || ''}</div>
-              <div class="cv-d-contact">${d.phone || ''}</div>
-              <div class="cv-d-contact">${d.city || ''}</div>
+              ${d.email    ? `<div class="cv-d-contact">${d.email}</div>`    : ''}
+              ${d.phone    ? `<div class="cv-d-contact">${d.phone}</div>`    : ''}
+              ${d.city     ? `<div class="cv-d-contact">${d.city}</div>`     : ''}
+              ${d.linkedin ? `<div class="cv-d-contact">${d.linkedin}</div>` : ''}
+              ${d.github   ? `<div class="cv-d-contact">${d.github}</div>`   : ''}
+              ${d.portfolio? `<div class="cv-d-contact">${d.portfolio}</div>`: ''}
               <div class="cv-d-section">Навыки</div>
               ${skills}
               <div class="cv-d-section">Образование</div>
@@ -590,9 +596,12 @@
               <div class="cv-e-name">${d.name || ''}</div>
               <div class="cv-e-pos">${d.position || ''}</div>
               <div class="cv-e-section">Контакты</div>
-              <div class="cv-e-contact">${d.email || ''}</div>
-              <div class="cv-e-contact">${d.phone || ''}</div>
-              <div class="cv-e-contact">${d.city || ''}</div>
+              ${d.email    ? `<div class="cv-e-contact">${d.email}</div>`    : ''}
+              ${d.phone    ? `<div class="cv-e-contact">${d.phone}</div>`    : ''}
+              ${d.city     ? `<div class="cv-e-contact">${d.city}</div>`     : ''}
+              ${d.linkedin ? `<div class="cv-e-contact">${d.linkedin}</div>` : ''}
+              ${d.github   ? `<div class="cv-e-contact">${d.github}</div>`   : ''}
+              ${d.portfolio? `<div class="cv-e-contact">${d.portfolio}</div>`: ''}
               <div class="cv-e-section">Навыки</div>
               ${skills}
               <div class="cv-e-section">Образование</div>
