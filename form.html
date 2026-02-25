@@ -103,6 +103,10 @@
       padding: 2px 8px;
       border-radius: 4px;
     }
+    .label-ru {
+      color: rgba(245,245,247,0.3);
+      font-weight: 400;
+    }
 
     /* Карточка языка */
     .lang-card {
@@ -201,11 +205,11 @@
           <div class="form-card-title"><span>👤</span> Личные данные</div>
           <div class="row">
             <div class="field">
-              <label>Имя и фамилия</label>
+              <label>Full Name <span class="label-ru">· Имя и фамилия</span></label>
               <input type="text" id="name" placeholder="John Smith" required>
             </div>
             <div class="field">
-              <label>Желаемая должность</label>
+              <label>Desired Position <span class="label-ru">· Желаемая должность</span></label>
               <input type="text" id="position" placeholder="Senior Product Manager" required>
             </div>
           </div>
@@ -215,12 +219,12 @@
               <input type="email" id="email" placeholder="john@gmail.com" required>
             </div>
             <div class="field">
-              <label>Телефон</label>
+              <label>Phone <span class="label-ru">· Телефон</span></label>
               <input type="text" id="phone" placeholder="+1 555 123 4567">
             </div>
           </div>
           <div class="field">
-            <label>Город</label>
+            <label>City <span class="label-ru">· Город</span></label>
             <input type="text" id="city" placeholder="New York">
           </div>
         </div>
@@ -229,15 +233,15 @@
         <div class="form-card">
           <div class="form-card-title"><span>💼</span> Опыт работы</div>
           <div class="field">
-            <label>Компания и должность</label>
+            <label>Company & Role <span class="label-ru">· Компания и должность</span></label>
             <input type="text" id="company" placeholder="Google — Product Manager">
           </div>
           <div class="field">
-            <label>Период работы</label>
+            <label>Period <span class="label-ru">· Период работы</span></label>
             <input type="text" id="period" placeholder="2021 — 2024">
           </div>
           <div class="field">
-            <label>Что ты делал на этой работе</label>
+            <label>Key Duties & Achievements <span class="label-ru">· Обязанности и достижения</span></label>
             <textarea id="duties" rows="4" placeholder="Led a cross-functional team of 12, increased revenue by 40%, managed product roadmap..."></textarea>
           </div>
         </div>
@@ -246,7 +250,7 @@
         <div class="form-card">
           <div class="form-card-title"><span>🎓</span> Образование</div>
           <div class="field">
-            <label>Учебное заведение и специальность</label>
+            <label>University & Degree <span class="label-ru">· Учебное заведение и специальность</span></label>
             <input type="text" id="education" placeholder="Oxford University — Computer Science, BSc, 2020">
           </div>
         </div>
@@ -255,7 +259,7 @@
         <div class="form-card">
           <div class="form-card-title"><span>⚡</span> Навыки</div>
           <div class="field">
-            <label>Перечисли свои навыки через запятую</label>
+            <label>List your skills, comma-separated <span class="label-ru">· Навыки через запятую</span></label>
             <input type="text" id="skills" placeholder="Python, SQL, Agile, Leadership, English C2">
           </div>
         </div>
@@ -264,7 +268,7 @@
         <div class="form-card">
           <div class="form-card-title"><span>💬</span> О себе</div>
           <div class="field">
-            <label>Пару слов о себе (необязательно)</label>
+            <label>A few words about yourself <span class="label-ru">· О себе (необязательно)</span></label>
             <textarea id="about" rows="3" placeholder="Results-driven, fast learner, passionate about solving complex problems..."></textarea>
           </div>
         </div>
@@ -281,7 +285,7 @@
             <input type="url" id="github" placeholder="github.com/john-smith">
           </div>
           <div class="field">
-            <label>Портфолио / Сайт</label>
+            <label>Portfolio / Website <span class="label-ru">· Портфолио / Сайт</span></label>
             <input type="url" id="portfolio" placeholder="johnsmith.dev">
           </div>
         </div>
@@ -290,7 +294,7 @@
         <div class="form-card">
           <div class="form-card-title"><span>🎯</span> Целевая вакансия <span class="optional-tag">необязательно</span></div>
           <div class="field">
-            <label>Вставь текст вакансии — AI адаптирует резюме под её ключевые слова</label>
+            <label>Paste job description — AI will tailor your resume to match <span class="label-ru">· AI адаптирует резюме под вакансию</span></label>
             <textarea id="jobDescription" rows="5" placeholder="Скопируй и вставь описание вакансии сюда. AI проанализирует требования и адаптирует твоё резюме так, чтобы оно прошло ATS-фильтр и зацепило рекрутера..."></textarea>
           </div>
         </div>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ошибка — ResumeAI</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+
+    .error-scene {
+      min-height: calc(100vh - 70px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      gap: 36px;
+    }
+
+    /* ===== ОБЛАКО ===== */
+    .cloud-wrap {
+      position: relative;
+      width: 240px;
+      height: 210px;
+      animation: cloud-float 3.5s ease-in-out infinite;
+    }
+
+    @keyframes cloud-float {
+      0%,100% { transform: translateY(0) rotate(-1deg); }
+      50%      { transform: translateY(-14px) rotate(1deg); }
+    }
+
+    /* Основное тело облака */
+    .cloud-main {
+      position: absolute;
+      bottom: 75px;
+      left: 20px;
+      width: 200px;
+      height: 72px;
+      background: #8ba4be;
+      border-radius: 36px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    /* Левый большой горб */
+    .cloud-main::before {
+      content: '';
+      position: absolute;
+      top: -52px;
+      left: 22px;
+      width: 96px;
+      height: 96px;
+      background: #8ba4be;
+      border-radius: 50%;
+    }
+
+    /* Правый малый горб */
+    .cloud-main::after {
+      content: '';
+      position: absolute;
+      top: -34px;
+      right: 26px;
+      width: 68px;
+      height: 68px;
+      background: #8ba4be;
+      border-radius: 50%;
+    }
+
+    /* Блик на облаке */
+    .cloud-glare {
+      position: absolute;
+      bottom: 115px;
+      left: 50px;
+      width: 56px;
+      height: 20px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 50%;
+      transform: rotate(-15deg);
+      filter: blur(3px);
+      pointer-events: none;
+    }
+
+    /* ===== ЛИЦО ===== */
+    .cloud-face {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    .cloud-eye {
+      position: absolute;
+      width: 11px;
+      height: 11px;
+      background: #3e5a72;
+      border-radius: 50%;
+      bottom: 107px;
+    }
+    .cloud-eye-l { left: 82px; }
+    .cloud-eye-r { left: 124px; }
+
+    /* Слезинки */
+    .cloud-tear {
+      position: absolute;
+      width: 5px;
+      height: 8px;
+      background: linear-gradient(to bottom, #5ba3d9, #2980b9);
+      border-radius: 50% 50% 60% 60%;
+      bottom: 96px;
+      animation: tear-fall 2.2s ease-in infinite;
+      opacity: 0;
+    }
+    .cloud-tear-l { left: 86px; animation-delay: 0.4s; }
+    .cloud-tear-r { left: 128px; animation-delay: 1.3s; }
+
+    @keyframes tear-fall {
+      0%   { transform: translateY(0);    opacity: 0;   }
+      10%  { opacity: 1; }
+      100% { transform: translateY(22px); opacity: 0;   }
+    }
+
+    /* Грустный рот — дуга вниз */
+    .cloud-mouth {
+      position: absolute;
+      bottom: 89px;
+      left: 97px;
+      width: 36px;
+      height: 16px;
+      border: 3px solid #3e5a72;
+      border-bottom: none;
+      border-radius: 36px 36px 0 0;
+    }
+
+    /* ===== ДОЖДЬ ===== */
+    .rain-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 75px;
+      overflow: hidden;
+    }
+
+    .raindrop {
+      position: absolute;
+      top: 0;
+      width: 2px;
+      border-radius: 0 0 2px 2px;
+      background: linear-gradient(to bottom, transparent 0%, #64b5f6 100%);
+      animation: rain-fall linear infinite;
+      opacity: 0;
+    }
+
+    @keyframes rain-fall {
+      0%   { transform: translateY(-16px); opacity: 0; }
+      15%  { opacity: 0.8; }
+      85%  { opacity: 0.6; }
+      100% { transform: translateY(80px);  opacity: 0; }
+    }
+
+    /* Лужи внизу */
+    .puddle {
+      position: absolute;
+      bottom: 0;
+      border-radius: 50%;
+      background: rgba(100,181,246,0.08);
+      border: 1px solid rgba(100,181,246,0.12);
+      animation: puddle-ripple 2s ease-out infinite;
+    }
+
+    @keyframes puddle-ripple {
+      0%   { transform: scale(0.6); opacity: 0.6; }
+      100% { transform: scale(1.8); opacity: 0;   }
+    }
+
+    /* ===== ТЕКСТ ===== */
+    .error-text { text-align: center; }
+
+    .error-code {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: rgba(245,245,247,0.25);
+      margin-bottom: 14px;
+    }
+
+    .error-title {
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: -1.2px;
+      color: #f5f5f7;
+      margin-bottom: 12px;
+    }
+
+    .error-subtitle {
+      font-size: 16px;
+      color: rgba(245,245,247,0.45);
+      margin-bottom: 32px;
+      line-height: 1.6;
+      max-width: 380px;
+    }
+
+    .error-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-ghost {
+      padding: 11px 24px;
+      border-radius: 980px;
+      font-size: 15px;
+      font-weight: 400;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: transparent;
+      color: rgba(245,245,247,0.7);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+    }
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.07);
+      color: #f5f5f7;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="logo">ResumeAI</a>
+    <a href="form.html" class="btn">Начать заново</a>
+  </header>
+
+  <main class="error-scene">
+
+    <div class="cloud-wrap">
+      <div class="cloud-main"></div>
+      <div class="cloud-glare"></div>
+      <div class="cloud-face">
+        <div class="cloud-eye cloud-eye-l"></div>
+        <div class="cloud-tear cloud-tear-l"></div>
+        <div class="cloud-eye cloud-eye-r"></div>
+        <div class="cloud-tear cloud-tear-r"></div>
+        <div class="cloud-mouth"></div>
+      </div>
+      <div class="rain-container" id="rainContainer"></div>
+    </div>
+
+    <div class="error-text">
+      <div class="error-code">Ошибка генерации</div>
+      <div class="error-title">Что-то пошло не так</div>
+      <p class="error-subtitle">
+        Не удалось создать резюме.<br>
+        Проверь интернет-соединение и попробуй снова.
+      </p>
+      <div class="error-actions">
+        <a href="form.html" class="btn">← Попробовать снова</a>
+        <a href="index.html" class="btn-ghost">На главную</a>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const rain = document.getElementById('rainContainer');
+
+    // Генерируем капли дождя
+    for (let i = 0; i < 28; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'raindrop';
+      drop.style.left   = (8 + Math.random() * 210) + 'px';
+      drop.style.height = (10 + Math.random() * 10) + 'px';
+      drop.style.animationDelay    = (Math.random() * 2.5) + 's';
+      drop.style.animationDuration = (0.55 + Math.random() * 0.45) + 's';
+      rain.appendChild(drop);
+    }
+
+    // Лужи
+    for (let i = 0; i < 4; i++) {
+      const p = document.createElement('div');
+      p.className = 'puddle';
+      p.style.left   = (20 + Math.random() * 180) + 'px';
+      p.style.width  = (14 + Math.random() * 12) + 'px';
+      p.style.height = (6 + Math.random() * 4) + 'px';
+      p.style.animationDelay = (Math.random() * 2) + 's';
+      p.style.animationDuration = (1.5 + Math.random() * 1) + 's';
+      rain.appendChild(p);
+    }
+  </script>
+
+</body>
+</html>

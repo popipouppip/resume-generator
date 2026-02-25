@@ -6,11 +6,14 @@
   <title>Твоё резюме — ResumeAI</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
+
     /* ===== ПЕРЕКЛЮЧАТЕЛЬ ШАБЛОНОВ ===== */
     .template-switcher {
       display: flex;
       justify-content: center;
+      flex-wrap: wrap;
       gap: 8px;
       padding: 32px 24px 0;
     }
@@ -29,16 +32,23 @@
       letter-spacing: -0.2px;
     }
 
-    .tpl-btn:hover {
-      background: rgba(255,255,255,0.1);
-      color: #f5f5f7;
-    }
+    .tpl-btn:hover { background: rgba(255,255,255,0.1); color: #f5f5f7; }
+    .tpl-btn.active { background: #0071e3; border-color: #0071e3; color: #fff; }
 
-    .tpl-btn.active {
-      background: #0071e3;
-      border-color: #0071e3;
-      color: #fff;
+    .ats-btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid rgba(99,102,241,0.4);
+      background: rgba(99,102,241,0.1);
+      color: #818cf8;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+      letter-spacing: -0.2px;
     }
+    .ats-btn:hover { background: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.6); }
 
     .result-page {
       padding: 32px 24px 80px;
@@ -64,6 +74,246 @@
     }
     .edit-link:hover { color: #f5f5f7; }
 
+    /* ===== EXPORT DROPDOWN ===== */
+    .export-wrap { position: relative; }
+
+    .export-main-btn {
+      background: #0071e3;
+      color: #fff;
+      padding: 11px 22px;
+      border-radius: 980px;
+      font-size: 15px;
+      font-weight: 400;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+    }
+    .export-main-btn:hover { background: #0077ed; }
+
+    .export-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: #111118;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      overflow: hidden;
+      display: none;
+      z-index: 200;
+      min-width: 170px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    }
+    .export-menu.open { display: block; }
+
+    .export-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 18px;
+      background: none;
+      border: none;
+      color: rgba(245,245,247,0.8);
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+    .export-item:hover { background: rgba(255,255,255,0.07); }
+    .export-item:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.06); }
+
+    /* ===== ATS OVERLAY & MODAL ===== */
+    .ats-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .ats-overlay.open { opacity: 1; pointer-events: all; }
+
+    .ats-modal {
+      background: #0d0d1a;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 22px;
+      padding: 44px 40px;
+      max-width: 400px;
+      width: 90%;
+      position: relative;
+      transform: scale(0.92) translateY(10px);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      text-align: center;
+    }
+    .ats-overlay.open .ats-modal { transform: scale(1) translateY(0); }
+
+    .ats-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: rgba(255,255,255,0.07);
+      border: none;
+      color: rgba(245,245,247,0.5);
+      font-size: 16px;
+      cursor: pointer;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .ats-close:hover { background: rgba(255,255,255,0.12); color: #f5f5f7; }
+
+    .ats-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #f5f5f7;
+      margin-bottom: 28px;
+      letter-spacing: -0.5px;
+    }
+
+    /* ===== WATER BALL ===== */
+    .ats-ball-wrap {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 24px;
+    }
+
+    .ats-ball {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+      background: rgba(255,255,255,0.03);
+      box-shadow:
+        inset 0 0 0 3px rgba(255,255,255,0.08),
+        0 0 50px rgba(0,113,227,0.15);
+    }
+
+    .ats-water {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 0%;
+      transition: height 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      background: linear-gradient(to top, #003aa8 0%, #0071e3 55%, #2997ff 100%);
+    }
+
+    /* Первая волна */
+    .ats-water::before {
+      content: '';
+      position: absolute;
+      top: -18px; left: -50%;
+      width: 200%; height: 36px;
+      border-radius: 45%;
+      background: rgba(41,151,255,0.45);
+      animation: ats-wave1 3s linear infinite;
+    }
+
+    /* Вторая волна */
+    .ats-water::after {
+      content: '';
+      position: absolute;
+      top: -12px; left: -50%;
+      width: 200%; height: 24px;
+      border-radius: 40%;
+      background: rgba(0,113,227,0.45);
+      animation: ats-wave2 4.5s linear infinite reverse;
+    }
+
+    @keyframes ats-wave1 {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(50%); }
+    }
+    @keyframes ats-wave2 {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(50%); }
+    }
+
+    .ats-score-display {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .ats-num {
+      font-size: 56px;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 14px rgba(0,0,0,0.55);
+      display: block;
+    }
+
+    .ats-pct {
+      font-size: 20px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .ats-status {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f5f5f7;
+      margin-bottom: 20px;
+      min-height: 24px;
+    }
+
+    .ats-kw-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(245,245,247,0.35);
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    .ats-kw {
+      display: inline-block;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin: 3px 3px 3px 0;
+    }
+    .ats-kw.found {
+      background: rgba(52,211,153,0.12);
+      border: 1px solid rgba(52,211,153,0.3);
+      color: #34d399;
+    }
+    .ats-kw.missing {
+      background: rgba(248,113,113,0.12);
+      border: 1px solid rgba(248,113,113,0.3);
+      color: #f87171;
+    }
+
+    .ats-found, .ats-missing { margin-bottom: 12px; text-align: left; }
+
+    .ats-no-job {
+      font-size: 13px;
+      color: rgba(245,245,247,0.4);
+      font-style: italic;
+      text-align: left;
+    }
+
+    .ats-tip {
+      font-size: 13px;
+      color: rgba(245,245,247,0.45);
+      font-style: italic;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
     /* ===== ШАБЛОН 1: КЛАССИКА Ч/Б ===== */
     .cv-classic {
       background: #ffffff;
@@ -71,408 +321,139 @@
       overflow: hidden;
       font-family: 'Georgia', 'Times New Roman', serif;
     }
-
-    .cv-classic .cv-top {
-      padding: 44px 52px 28px;
-      border-bottom: 2px solid #000;
-    }
-
-    .cv-classic .cv-c-name {
-      font-size: 32px;
-      font-weight: 700;
-      color: #000;
-      letter-spacing: -1px;
-      margin-bottom: 4px;
-    }
-
-    .cv-classic .cv-c-pos {
-      font-size: 15px;
-      color: #333;
-      font-style: italic;
-      margin-bottom: 12px;
-    }
-
-    .cv-classic .cv-c-contacts {
-      font-size: 12px;
-      color: #555;
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      font-family: -apple-system, sans-serif;
-    }
-
-    .cv-classic .cv-body {
-      padding: 32px 52px 44px;
-      display: grid;
-      grid-template-columns: 1fr 240px;
-      gap: 40px;
-    }
-
-    .cv-classic .cv-c-section {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2.5px;
-      color: #000;
-      border-bottom: 1px solid #000;
-      padding-bottom: 6px;
-      margin-bottom: 16px;
-      margin-top: 28px;
-      font-family: -apple-system, sans-serif;
-    }
-
+    .cv-classic .cv-top { padding: 44px 52px 28px; border-bottom: 2px solid #000; }
+    .cv-classic .cv-c-name { font-size: 32px; font-weight: 700; color: #000; letter-spacing: -1px; margin-bottom: 4px; }
+    .cv-classic .cv-c-pos { font-size: 15px; color: #333; font-style: italic; margin-bottom: 12px; }
+    .cv-classic .cv-c-contacts { font-size: 12px; color: #555; display: flex; gap: 20px; flex-wrap: wrap; font-family: -apple-system, sans-serif; }
+    .cv-classic .cv-body { padding: 32px 52px 44px; display: grid; grid-template-columns: 1fr 240px; gap: 40px; }
+    .cv-classic .cv-c-section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; color: #000; border-bottom: 1px solid #000; padding-bottom: 6px; margin-bottom: 16px; margin-top: 28px; font-family: -apple-system, sans-serif; }
     .cv-classic .cv-c-section:first-child { margin-top: 0; }
+    .cv-classic .cv-c-job-title { font-size: 15px; font-weight: 700; color: #000; font-family: -apple-system, sans-serif; }
+    .cv-classic .cv-c-job-meta { font-size: 12px; color: #555; margin-bottom: 8px; font-family: -apple-system, sans-serif; }
+    .cv-classic .cv-c-bullets { padding-left: 16px; margin-bottom: 16px; }
+    .cv-classic .cv-c-bullets li { font-size: 13px; color: #222; line-height: 1.7; margin-bottom: 4px; }
+    .cv-classic .cv-c-summary { font-size: 14px; color: #222; line-height: 1.8; }
+    .cv-classic .cv-c-skill { display: inline-block; font-size: 12px; color: #333; border: 1px solid #bbb; padding: 3px 10px; margin: 3px 3px 3px 0; font-family: -apple-system, sans-serif; border-radius: 2px; }
+    .cv-classic .cv-c-edu { font-size: 13px; color: #333; line-height: 1.6; font-family: -apple-system, sans-serif; }
 
-    .cv-classic .cv-c-job-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #000;
-      font-family: -apple-system, sans-serif;
-    }
-
-    .cv-classic .cv-c-job-meta {
-      font-size: 12px;
-      color: #555;
-      margin-bottom: 8px;
-      font-family: -apple-system, sans-serif;
-    }
-
-    .cv-classic .cv-c-bullets {
-      padding-left: 16px;
-      margin-bottom: 16px;
-    }
-
-    .cv-classic .cv-c-bullets li {
-      font-size: 13px;
-      color: #222;
-      line-height: 1.7;
-      margin-bottom: 4px;
-    }
-
-    .cv-classic .cv-c-summary {
-      font-size: 14px;
-      color: #222;
-      line-height: 1.8;
-    }
-
-    .cv-classic .cv-c-skill {
-      display: inline-block;
-      font-size: 12px;
-      color: #333;
-      border: 1px solid #bbb;
-      padding: 3px 10px;
-      margin: 3px 3px 3px 0;
-      font-family: -apple-system, sans-serif;
-      border-radius: 2px;
-    }
-
-    .cv-classic .cv-c-edu {
-      font-size: 13px;
-      color: #333;
-      line-height: 1.6;
-      font-family: -apple-system, sans-serif;
-    }
-
-    /* ===== ШАБЛОН 2: ТЁМНЫЙ (как сайт) ===== */
-    .cv-dark {
-      background: #0a0a0d;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      display: grid;
-      grid-template-columns: 240px 1fr;
-    }
-
-    .cv-dark .cv-d-left {
-      background: rgba(255,255,255,0.04);
-      border-right: 1px solid rgba(255,255,255,0.07);
-      padding: 40px 28px;
-    }
-
-    .cv-dark .cv-d-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: #0071e3;
-      color: #fff;
-      font-size: 22px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
-
-    .cv-dark .cv-d-name {
-      font-size: 18px;
-      font-weight: 600;
-      color: #f5f5f7;
-      margin-bottom: 4px;
-      line-height: 1.2;
-    }
-
-    .cv-dark .cv-d-pos {
-      font-size: 12px;
-      color: #2997ff;
-      margin-bottom: 28px;
-    }
-
-    .cv-dark .cv-d-section {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: rgba(255,255,255,0.3);
-      margin: 20px 0 10px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255,255,255,0.07);
-    }
-
-    .cv-dark .cv-d-contact {
-      font-size: 12px;
-      color: rgba(245,245,247,0.65);
-      margin-bottom: 7px;
-      word-break: break-all;
-      line-height: 1.4;
-    }
-
-    .cv-dark .cv-d-skill {
-      display: inline-block;
-      background: rgba(0,113,227,0.15);
-      border: 1px solid rgba(0,113,227,0.3);
-      color: #2997ff;
-      font-size: 11px;
-      padding: 3px 9px;
-      border-radius: 4px;
-      margin: 3px 3px 3px 0;
-    }
-
-    .cv-dark .cv-d-edu {
-      font-size: 12px;
-      color: rgba(245,245,247,0.55);
-      line-height: 1.6;
-    }
-
-    .cv-dark .cv-d-right {
-      padding: 40px 36px;
-    }
-
-    .cv-dark .cv-d-right-section {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      color: rgba(255,255,255,0.3);
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-    }
-
-    .cv-dark .cv-d-summary {
-      font-size: 14px;
-      color: rgba(245,245,247,0.75);
-      line-height: 1.8;
-      margin-bottom: 32px;
-    }
-
+    /* ===== ШАБЛОН 2: ТЁМНЫЙ ===== */
+    .cv-dark { background: #0a0a0d; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: grid; grid-template-columns: 240px 1fr; }
+    .cv-dark .cv-d-left { background: rgba(255,255,255,0.04); border-right: 1px solid rgba(255,255,255,0.07); padding: 40px 28px; }
+    .cv-dark .cv-d-avatar { width: 60px; height: 60px; border-radius: 50%; background: #0071e3; color: #fff; font-size: 22px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .cv-dark .cv-d-name { font-size: 18px; font-weight: 600; color: #f5f5f7; margin-bottom: 4px; line-height: 1.2; }
+    .cv-dark .cv-d-pos { font-size: 12px; color: #2997ff; margin-bottom: 28px; }
+    .cv-dark .cv-d-section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin: 20px 0 10px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .cv-dark .cv-d-contact { font-size: 12px; color: rgba(245,245,247,0.65); margin-bottom: 7px; word-break: break-all; line-height: 1.4; }
+    .cv-dark .cv-d-skill { display: inline-block; background: rgba(0,113,227,0.15); border: 1px solid rgba(0,113,227,0.3); color: #2997ff; font-size: 11px; padding: 3px 9px; border-radius: 4px; margin: 3px 3px 3px 0; }
+    .cv-dark .cv-d-edu { font-size: 12px; color: rgba(245,245,247,0.55); line-height: 1.6; }
+    .cv-dark .cv-d-right { padding: 40px 36px; }
+    .cv-dark .cv-d-right-section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.3); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .cv-dark .cv-d-summary { font-size: 14px; color: rgba(245,245,247,0.75); line-height: 1.8; margin-bottom: 32px; }
     .cv-dark .cv-d-job { margin-bottom: 22px; }
-
-    .cv-dark .cv-d-job-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .cv-dark .cv-d-job-role {
-      font-size: 14px;
-      font-weight: 600;
-      color: #f5f5f7;
-    }
-
-    .cv-dark .cv-d-job-co {
-      font-size: 12px;
-      color: #2997ff;
-      margin-top: 2px;
-    }
-
-    .cv-dark .cv-d-job-period {
-      font-size: 11px;
-      color: rgba(255,255,255,0.35);
-      white-space: nowrap;
-      margin-left: 12px;
-    }
-
+    .cv-dark .cv-d-job-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .cv-dark .cv-d-job-role { font-size: 14px; font-weight: 600; color: #f5f5f7; }
+    .cv-dark .cv-d-job-co { font-size: 12px; color: #2997ff; margin-top: 2px; }
+    .cv-dark .cv-d-job-period { font-size: 11px; color: rgba(255,255,255,0.35); white-space: nowrap; margin-left: 12px; }
     .cv-dark .cv-d-bullets { padding-left: 16px; }
-
-    .cv-dark .cv-d-bullets li {
-      font-size: 13px;
-      color: rgba(245,245,247,0.65);
-      line-height: 1.7;
-      margin-bottom: 4px;
-    }
+    .cv-dark .cv-d-bullets li { font-size: 13px; color: rgba(245,245,247,0.65); line-height: 1.7; margin-bottom: 4px; }
 
     /* ===== ШАБЛОН 3: СОЛИДНЫЙ (Navy + Gold) ===== */
-    .cv-exec {
-      background: #fff;
-      border-radius: 4px;
-      overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      display: grid;
-      grid-template-columns: 260px 1fr;
-    }
-
-    .cv-exec .cv-e-left {
-      background: #1b2f4e;
-      padding: 44px 28px;
-      color: #fff;
-    }
-
-    .cv-exec .cv-e-avatar {
-      width: 68px;
-      height: 68px;
-      border-radius: 6px;
-      background: #c9a84c;
-      color: #1b2f4e;
-      font-size: 24px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 18px;
-    }
-
-    .cv-exec .cv-e-name {
-      font-size: 20px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.2;
-      margin-bottom: 4px;
-    }
-
-    .cv-exec .cv-e-pos {
-      font-size: 12px;
-      color: #c9a84c;
-      letter-spacing: 0.5px;
-      margin-bottom: 28px;
-      font-style: italic;
-    }
-
-    .cv-exec .cv-e-section {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2.5px;
-      color: #c9a84c;
-      margin: 22px 0 10px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(201,168,76,0.25);
-    }
-
-    .cv-exec .cv-e-contact {
-      font-size: 12px;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 7px;
-      word-break: break-all;
-      line-height: 1.4;
-    }
-
-    .cv-exec .cv-e-skill {
-      display: inline-block;
-      background: rgba(201,168,76,0.15);
-      border: 1px solid rgba(201,168,76,0.35);
-      color: #c9a84c;
-      font-size: 11px;
-      padding: 3px 9px;
-      border-radius: 3px;
-      margin: 3px 3px 3px 0;
-    }
-
-    .cv-exec .cv-e-edu {
-      font-size: 12px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.6;
-    }
-
-    .cv-exec .cv-e-right {
-      padding: 44px 40px;
-      background: #fff;
-    }
-
-    .cv-exec .cv-e-right-section {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2.5px;
-      color: #1b2f4e;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 2px solid #c9a84c;
-    }
-
-    .cv-exec .cv-e-summary {
-      font-size: 14px;
-      color: #333;
-      line-height: 1.8;
-      margin-bottom: 32px;
-    }
-
+    .cv-exec { background: #fff; border-radius: 4px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: grid; grid-template-columns: 260px 1fr; }
+    .cv-exec .cv-e-left { background: #1b2f4e; padding: 44px 28px; color: #fff; }
+    .cv-exec .cv-e-avatar { width: 68px; height: 68px; border-radius: 6px; background: #c9a84c; color: #1b2f4e; font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+    .cv-exec .cv-e-name { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 4px; }
+    .cv-exec .cv-e-pos { font-size: 12px; color: #c9a84c; letter-spacing: 0.5px; margin-bottom: 28px; font-style: italic; }
+    .cv-exec .cv-e-section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; color: #c9a84c; margin: 22px 0 10px; padding-top: 16px; border-top: 1px solid rgba(201,168,76,0.25); }
+    .cv-exec .cv-e-contact { font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 7px; word-break: break-all; line-height: 1.4; }
+    .cv-exec .cv-e-skill { display: inline-block; background: rgba(201,168,76,0.15); border: 1px solid rgba(201,168,76,0.35); color: #c9a84c; font-size: 11px; padding: 3px 9px; border-radius: 3px; margin: 3px 3px 3px 0; }
+    .cv-exec .cv-e-edu { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+    .cv-exec .cv-e-right { padding: 44px 40px; background: #fff; }
+    .cv-exec .cv-e-right-section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; color: #1b2f4e; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #c9a84c; }
+    .cv-exec .cv-e-summary { font-size: 14px; color: #333; line-height: 1.8; margin-bottom: 32px; }
     .cv-exec .cv-e-job { margin-bottom: 24px; }
-
-    .cv-exec .cv-e-job-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 8px;
-    }
-
-    .cv-exec .cv-e-job-role {
-      font-size: 15px;
-      font-weight: 700;
-      color: #1b2f4e;
-    }
-
-    .cv-exec .cv-e-job-co {
-      font-size: 12px;
-      color: #c9a84c;
-      margin-top: 2px;
-    }
-
-    .cv-exec .cv-e-job-period {
-      font-size: 11px;
-      color: #888;
-      white-space: nowrap;
-      margin-left: 12px;
-    }
-
+    .cv-exec .cv-e-job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .cv-exec .cv-e-job-role { font-size: 15px; font-weight: 700; color: #1b2f4e; }
+    .cv-exec .cv-e-job-co { font-size: 12px; color: #c9a84c; margin-top: 2px; }
+    .cv-exec .cv-e-job-period { font-size: 11px; color: #888; white-space: nowrap; margin-left: 12px; }
     .cv-exec .cv-e-bullets { padding-left: 16px; }
+    .cv-exec .cv-e-bullets li { font-size: 13.5px; color: #333; line-height: 1.7; margin-bottom: 4px; }
 
-    .cv-exec .cv-e-bullets li {
-      font-size: 13.5px;
-      color: #333;
-      line-height: 1.7;
-      margin-bottom: 4px;
+    /* ===== ШАБЛОН 4: МИНИМАЛИЗМ ===== */
+    .cv-minimal {
+      background: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      padding: 52px 60px;
     }
+    .cv-minimal .cv-mn-name { font-size: 34px; font-weight: 300; color: #111; letter-spacing: -1px; margin-bottom: 2px; }
+    .cv-minimal .cv-mn-pos { font-size: 11px; text-transform: uppercase; letter-spacing: 3px; color: #888; margin-bottom: 14px; }
+    .cv-minimal .cv-mn-line { height: 1px; background: #111; margin-bottom: 14px; }
+    .cv-minimal .cv-mn-contacts { display: flex; gap: 20px; flex-wrap: wrap; font-size: 12px; color: #666; margin-bottom: 36px; }
+    .cv-minimal .cv-mn-body { display: grid; grid-template-columns: 1fr 200px; gap: 44px; }
+    .cv-minimal .cv-mn-section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; color: #0071e3; margin: 24px 0 12px; }
+    .cv-minimal .cv-mn-section:first-child { margin-top: 0; }
+    .cv-minimal .cv-mn-summary { font-size: 14px; color: #333; line-height: 1.8; }
+    .cv-minimal .cv-mn-job-title { font-size: 14px; font-weight: 600; color: #111; }
+    .cv-minimal .cv-mn-job-meta { font-size: 12px; color: #888; margin-bottom: 8px; }
+    .cv-minimal .cv-mn-bullets { padding-left: 14px; margin-bottom: 16px; }
+    .cv-minimal .cv-mn-bullets li { font-size: 13px; color: #444; line-height: 1.7; margin-bottom: 3px; }
+    .cv-minimal .cv-mn-skill { display: inline-block; font-size: 11px; color: #555; border-bottom: 1px solid #ccc; padding: 2px 0; margin: 3px 10px 3px 0; }
+    .cv-minimal .cv-mn-edu { font-size: 12px; color: #555; line-height: 1.7; }
+
+    /* ===== ШАБЛОН 5: ИЗУМРУД ===== */
+    .cv-emerald { display: grid; grid-template-columns: 250px 1fr; background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
+    .cv-emerald .cv-em-left { background: #064e3b; padding: 44px 28px; }
+    .cv-emerald .cv-em-avatar { width: 66px; height: 66px; border-radius: 50%; background: #6ee7b7; color: #064e3b; font-size: 24px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+    .cv-emerald .cv-em-name { font-size: 19px; font-weight: 700; color: #fff; margin-bottom: 4px; line-height: 1.2; }
+    .cv-emerald .cv-em-pos { font-size: 12px; color: #6ee7b7; margin-bottom: 28px; }
+    .cv-emerald .cv-em-section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #6ee7b7; margin: 20px 0 10px; padding-top: 16px; border-top: 1px solid rgba(110,231,183,0.18); }
+    .cv-emerald .cv-em-contact { font-size: 12px; color: rgba(255,255,255,0.72); margin-bottom: 7px; word-break: break-all; line-height: 1.4; }
+    .cv-emerald .cv-em-skill { display: inline-block; background: rgba(110,231,183,0.13); border: 1px solid rgba(110,231,183,0.3); color: #6ee7b7; font-size: 11px; padding: 3px 9px; border-radius: 3px; margin: 3px 3px 3px 0; }
+    .cv-emerald .cv-em-edu { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+    .cv-emerald .cv-em-right { padding: 44px 40px; }
+    .cv-emerald .cv-em-right-section { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #064e3b; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #064e3b; }
+    .cv-emerald .cv-em-summary { font-size: 14px; color: #333; line-height: 1.8; margin-bottom: 28px; }
+    .cv-emerald .cv-em-job { margin-bottom: 22px; }
+    .cv-emerald .cv-em-job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .cv-emerald .cv-em-job-role { font-size: 14px; font-weight: 700; color: #064e3b; }
+    .cv-emerald .cv-em-job-co { font-size: 12px; color: #059669; margin-top: 2px; }
+    .cv-emerald .cv-em-job-period { font-size: 11px; color: #888; white-space: nowrap; margin-left: 12px; }
+    .cv-emerald .cv-em-bullets { padding-left: 16px; }
+    .cv-emerald .cv-em-bullets li { font-size: 13.5px; color: #333; line-height: 1.7; margin-bottom: 4px; }
+
+    /* ===== ШАБЛОН 6: ТВОРЧЕСКИЙ (Violet) ===== */
+    .cv-creative { background: #fff; font-family: -apple-system, BlinkMacSystemFont, sans-serif; overflow: hidden; }
+    .cv-creative .cv-cr-header { background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%); padding: 40px 48px; display: flex; align-items: center; gap: 24px; }
+    .cv-creative .cv-cr-avatar { width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.18); border: 3px solid rgba(255,255,255,0.45); color: #fff; font-size: 26px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cv-creative .cv-cr-header-info { flex: 1; }
+    .cv-creative .cv-cr-name { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .cv-creative .cv-cr-pos { font-size: 13px; color: rgba(255,255,255,0.75); margin-bottom: 10px; }
+    .cv-creative .cv-cr-contacts { font-size: 12px; color: rgba(255,255,255,0.6); display: flex; gap: 14px; flex-wrap: wrap; }
+    .cv-creative .cv-cr-body { padding: 36px 48px; display: grid; grid-template-columns: 1fr 200px; gap: 40px; }
+    .cv-creative .cv-cr-section { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5px; color: #7c3aed; margin: 22px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #ede9fe; }
+    .cv-creative .cv-cr-section:first-child { margin-top: 0; }
+    .cv-creative .cv-cr-summary { font-size: 14px; color: #333; line-height: 1.8; }
+    .cv-creative .cv-cr-job { margin-bottom: 20px; }
+    .cv-creative .cv-cr-job-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 7px; }
+    .cv-creative .cv-cr-job-role { font-size: 14px; font-weight: 700; color: #1a1a2e; }
+    .cv-creative .cv-cr-job-co { font-size: 12px; color: #7c3aed; margin-top: 2px; }
+    .cv-creative .cv-cr-job-period { font-size: 11px; color: #888; white-space: nowrap; margin-left: 12px; }
+    .cv-creative .cv-cr-bullets { padding-left: 14px; }
+    .cv-creative .cv-cr-bullets li { font-size: 13px; color: #444; line-height: 1.7; margin-bottom: 4px; }
+    .cv-creative .cv-cr-skill { display: inline-block; background: #ede9fe; color: #5b21b6; font-size: 11px; padding: 3px 10px; border-radius: 100px; margin: 3px 3px 3px 0; }
+    .cv-creative .cv-cr-edu { font-size: 12px; color: #555; line-height: 1.7; }
 
     /* ===== INLINE EDITING ===== */
-    [contenteditable] {
-      outline: none;
-      border-radius: 3px;
-      cursor: text;
-      transition: background 0.15s;
-    }
-    [contenteditable]:hover {
-      background: rgba(0, 113, 227, 0.07);
-    }
-    [contenteditable]:focus {
-      outline: 2px solid #0071e3;
-      outline-offset: 1px;
-      background: rgba(0, 113, 227, 0.05);
-    }
+    [contenteditable] { outline: none; border-radius: 3px; cursor: text; transition: background 0.15s; }
+    [contenteditable]:hover { background: rgba(0,113,227,0.07); }
+    [contenteditable]:focus { outline: 2px solid #0071e3; outline-offset: 1px; background: rgba(0,113,227,0.05); }
     .cv-dark [contenteditable]:hover  { background: rgba(41,151,255,0.1); }
     .cv-dark [contenteditable]:focus  { outline-color: #2997ff; background: rgba(41,151,255,0.08); }
     .cv-exec [contenteditable]:hover  { background: rgba(201,168,76,0.1); }
     .cv-exec [contenteditable]:focus  { outline-color: #c9a84c; background: rgba(201,168,76,0.07); }
+    .cv-emerald [contenteditable]:hover  { background: rgba(6,78,59,0.07); }
+    .cv-emerald [contenteditable]:focus  { outline-color: #059669; }
+    .cv-creative [contenteditable]:hover  { background: rgba(124,58,237,0.07); }
+    .cv-creative [contenteditable]:focus  { outline-color: #7c3aed; }
 
     .edit-hint {
       font-size: 12px;
@@ -482,31 +463,55 @@
       letter-spacing: -0.1px;
     }
 
-    /* ===== ATS BADGE ===== */
-    .ats-badge {
-      display: inline-flex;
+    /* ===== СОПРОВОДИТЕЛЬНОЕ ПИСЬМО ===== */
+    .cl-section {
+      max-width: 820px;
+      width: 100%;
+    }
+
+    .cl-bar {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 9px 16px;
+      justify-content: space-between;
+      padding: 20px 0 16px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .cl-bar-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(245,245,247,0.55);
+      letter-spacing: -0.3px;
+    }
+
+    .cl-gen-btn {
+      padding: 9px 18px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 500;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.04);
-      color: rgba(245,245,247,0.35);
-      cursor: default;
+      border: 1px solid rgba(41,151,255,0.3);
+      background: rgba(41,151,255,0.08);
+      color: #2997ff;
+      cursor: pointer;
+      transition: all 0.2s;
       font-family: inherit;
-      letter-spacing: -0.2px;
-      margin-left: 8px;
     }
-    .ats-soon {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: rgba(99,102,241,0.2);
-      color: #818cf8;
-      font-weight: 600;
-      letter-spacing: 0.3px;
+    .cl-gen-btn:hover { background: rgba(41,151,255,0.18); }
+    .cl-gen-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .cl-loading {
+      padding: 40px;
+      text-align: center;
+      color: rgba(245,245,247,0.35);
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    .cl-error {
+      padding: 16px;
+      text-align: center;
+      color: #f87171;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -514,197 +519,367 @@
 
   <header>
     <a href="index.html" class="logo">ResumeAI</a>
-    <button class="btn" id="downloadBtn">Скачать PDF</button>
+    <div class="export-wrap">
+      <button class="export-main-btn" id="exportMainBtn">Скачать ▾</button>
+      <div class="export-menu" id="exportMenu">
+        <button class="export-item" id="dlPdf">📄&nbsp; PDF</button>
+        <button class="export-item" id="dlWord">📝&nbsp; Word (.doc)</button>
+        <button class="export-item" id="dlPng">🖼&nbsp; PNG</button>
+      </div>
+    </div>
   </header>
 
   <div class="template-switcher">
-    <button class="tpl-btn active" data-t="1">Классика Ч/Б</button>
+    <button class="tpl-btn active" data-t="1">Классика</button>
     <button class="tpl-btn" data-t="2">Тёмный</button>
     <button class="tpl-btn" data-t="3">Солидный</button>
-    <span class="ats-badge">🛡 ATS Check <span class="ats-soon">скоро</span></span>
+    <button class="tpl-btn" data-t="4">Минимализм</button>
+    <button class="tpl-btn" data-t="5">Изумруд</button>
+    <button class="tpl-btn" data-t="6">Творческий</button>
+    <button class="ats-btn" id="atsBtn">🛡 ATS</button>
   </div>
   <p class="edit-hint">Нажми на любой текст в резюме — и отредактируй</p>
 
   <main class="result-page">
     <div class="cv-wrap" id="cvOutput"></div>
+
+    <!-- Сопроводительное письмо -->
+    <div class="cl-section" id="clSection">
+      <div class="cl-bar">
+        <span class="cl-bar-label">Сопроводительное письмо</span>
+        <button class="cl-gen-btn" id="clGenBtn">Сгенерировать письмо ✨</button>
+      </div>
+      <div id="clOutput"></div>
+    </div>
+
     <div class="result-actions">
       <a href="form.html" class="edit-link">← Изменить данные</a>
     </div>
   </main>
 
-  <script>
-    const raw  = localStorage.getItem('resumeData');
-    const wrap = document.getElementById('cvOutput');
-    let currentTemplate = 1;
+  <!-- ATS Модалка -->
+  <div class="ats-overlay" id="atsOverlay">
+    <div class="ats-modal">
+      <button class="ats-close" id="atsClose">✕</button>
+      <h3 class="ats-title">🛡 ATS-совместимость</h3>
 
-    // Language-aware section labels
+      <div class="ats-ball-wrap">
+        <div class="ats-ball">
+          <div class="ats-water" id="atsWater"></div>
+          <div class="ats-score-display">
+            <span class="ats-num" id="atsNum">0</span><span class="ats-pct">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ats-status" id="atsStatus"></div>
+
+      <div class="ats-found" id="atsFound"></div>
+      <div class="ats-missing" id="atsMissing"></div>
+      <div class="ats-tip" id="atsTip"></div>
+    </div>
+  </div>
+
+  <script>
+    const raw      = localStorage.getItem('resumeData');
     const formData = JSON.parse(localStorage.getItem('formData') || '{}');
-    const lang = formData.language || 'ru';
+    const wrap     = document.getElementById('cvOutput');
+    let currentTemplate  = 1;
+    let coverLetterData  = null;
+    let resumeData       = null;
+
     const labelMap = {
-      ru: { profile: 'Профессиональный профиль', experience: 'Опыт работы', contacts: 'Контакты', skills: 'Навыки', education: 'Образование' },
-      en: { profile: 'Professional Profile',      experience: 'Experience',    contacts: 'Contact',   skills: 'Skills',  education: 'Education' },
-      de: { profile: 'Berufliches Profil',         experience: 'Berufserfahrung', contacts: 'Kontakt', skills: 'Kenntnisse', education: 'Ausbildung' },
-      fr: { profile: 'Profil professionnel',       experience: 'Expérience',    contacts: 'Contact',   skills: 'Compétences', education: 'Formation' },
-      es: { profile: 'Perfil profesional',         experience: 'Experiencia',   contacts: 'Contacto',  skills: 'Habilidades', education: 'Educación' },
-      it: { profile: 'Profilo professionale',      experience: 'Esperienza',    contacts: 'Contatto',  skills: 'Competenze',  education: 'Istruzione' },
-      pl: { profile: 'Profil zawodowy',            experience: 'Doświadczenie', contacts: 'Kontakt',   skills: 'Umiejętności', education: 'Wykształcenie' },
+      ru: { profile:'Профессиональный профиль', experience:'Опыт работы', contacts:'Контакты', skills:'Навыки', education:'Образование' },
+      en: { profile:'Professional Profile', experience:'Experience', contacts:'Contact', skills:'Skills', education:'Education' },
+      de: { profile:'Berufliches Profil', experience:'Berufserfahrung', contacts:'Kontakt', skills:'Kenntnisse', education:'Ausbildung' },
+      fr: { profile:'Profil professionnel', experience:'Expérience', contacts:'Contact', skills:'Compétences', education:'Formation' },
+      es: { profile:'Perfil profesional', experience:'Experiencia', contacts:'Contacto', skills:'Habilidades', education:'Educación' },
+      it: { profile:'Profilo professionale', experience:'Esperienza', contacts:'Contatto', skills:'Competenze', education:'Istruzione' },
+      pl: { profile:'Profil zawodowy', experience:'Doświadczenie', contacts:'Kontakt', skills:'Umiejętności', education:'Wykształcenie' },
     };
-    const L = labelMap[lang] || labelMap['en'];
+    const L = labelMap[formData.language] || labelMap['ru'];
+    const ed = 'contenteditable="true" spellcheck="false"';
 
     if (!raw) {
-      wrap.innerHTML = '<p style="padding:40px;color:rgba(245,245,247,0.4)">Резюме не найдено. <a href="form.html" style="color:#2997ff">Вернись и заполни форму.</a></p>';
+      window.location.href = 'error.html';
     } else {
-      const d = JSON.parse(raw);
-      const ed = 'contenteditable="true" spellcheck="false"';
+      resumeData = JSON.parse(raw);
+      const d = resumeData;
 
+      /* ─────────── ШАБЛОН 1: КЛАССИКА ─────────── */
       function renderClassic(d) {
-        const skills = (d.skills || []).map(s => `<span class="cv-c-skill" ${ed}>${s}</span>`).join('');
-        const jobs = (d.experience || []).map(exp => {
-          const bullets = (exp.achievements || []).map(a => `<li ${ed}>${a}</li>`).join('');
-          return `
+        const skills = (d.skills||[]).map(s=>`<span class="cv-c-skill" ${ed}>${s}</span>`).join('');
+        const jobs = (d.experience||[]).map(exp=>{
+          const bullets=(exp.achievements||[]).map(a=>`<li ${ed}>${a}</li>`).join('');
+          return `<div>
+            <div class="cv-c-job-title" ${ed}>${exp.role||''}</div>
+            <div class="cv-c-job-meta"><span ${ed}>${exp.company||''}</span> · <span ${ed}>${exp.period||''}</span></div>
+            <ul class="cv-c-bullets">${bullets}</ul>
+          </div>`;
+        }).join('');
+        return `<div class="cv-classic">
+          <div class="cv-top">
+            <div class="cv-c-name" ${ed}>${d.name||''}</div>
+            <div class="cv-c-pos" ${ed}>${d.position||''}</div>
+            <div class="cv-c-contacts">
+              ${d.email?`<span ${ed}>${d.email}</span>`:''}
+              ${d.phone?`<span ${ed}>${d.phone}</span>`:''}
+              ${d.city?`<span ${ed}>${d.city}</span>`:''}
+              ${d.linkedin?`<span ${ed}>${d.linkedin}</span>`:''}
+              ${d.github?`<span ${ed}>${d.github}</span>`:''}
+              ${d.portfolio?`<span ${ed}>${d.portfolio}</span>`:''}
+            </div>
+          </div>
+          <div class="cv-body">
             <div>
-              <div class="cv-c-job-title" ${ed}>${exp.role || ''}</div>
-              <div class="cv-c-job-meta"><span ${ed}>${exp.company || ''}</span> · <span ${ed}>${exp.period || ''}</span></div>
-              <ul class="cv-c-bullets">${bullets}</ul>
-            </div>`;
-        }).join('');
-
-        return `
-          <div class="cv-classic">
-            <div class="cv-top">
-              <div class="cv-c-name" ${ed}>${d.name || ''}</div>
-              <div class="cv-c-pos" ${ed}>${d.position || ''}</div>
-              <div class="cv-c-contacts">
-                ${d.email    ? `<span ${ed}>${d.email}</span>`    : ''}
-                ${d.phone    ? `<span ${ed}>${d.phone}</span>`    : ''}
-                ${d.city     ? `<span ${ed}>${d.city}</span>`     : ''}
-                ${d.linkedin ? `<span ${ed}>${d.linkedin}</span>` : ''}
-                ${d.github   ? `<span ${ed}>${d.github}</span>`   : ''}
-                ${d.portfolio? `<span ${ed}>${d.portfolio}</span>`: ''}
-              </div>
+              <div class="cv-c-section">${L.profile}</div>
+              <p class="cv-c-summary" ${ed}>${d.summary||''}</p>
+              <div class="cv-c-section">${L.experience}</div>
+              ${jobs}
             </div>
-            <div class="cv-body">
-              <div>
-                <div class="cv-c-section">${L.profile}</div>
-                <p class="cv-c-summary" ${ed}>${d.summary || ''}</p>
-                <div class="cv-c-section">${L.experience}</div>
-                ${jobs}
-              </div>
-              <div>
-                <div class="cv-c-section">${L.skills}</div>
-                ${skills}
-                <div class="cv-c-section">${L.education}</div>
-                <div class="cv-c-edu" ${ed}>${d.education || ''}</div>
-              </div>
+            <div>
+              <div class="cv-c-section">${L.skills}</div>
+              ${skills}
+              <div class="cv-c-section">${L.education}</div>
+              <div class="cv-c-edu" ${ed}>${d.education||''}</div>
             </div>
-          </div>`;
+          </div>
+        </div>`;
       }
 
+      /* ─────────── ШАБЛОН 2: ТЁМНЫЙ ─────────── */
       function renderDark(d) {
-        const skills = (d.skills || []).map(s => `<span class="cv-d-skill" ${ed}>${s}</span>`).join('');
-        const jobs = (d.experience || []).map(exp => {
-          const bullets = (exp.achievements || []).map(a => `<li ${ed}>${a}</li>`).join('');
-          return `
-            <div class="cv-d-job">
-              <div class="cv-d-job-header">
-                <div>
-                  <div class="cv-d-job-role" ${ed}>${exp.role || ''}</div>
-                  <div class="cv-d-job-co" ${ed}>${exp.company || ''}</div>
-                </div>
-                <div class="cv-d-job-period" ${ed}>${exp.period || ''}</div>
+        const skills=(d.skills||[]).map(s=>`<span class="cv-d-skill" ${ed}>${s}</span>`).join('');
+        const jobs=(d.experience||[]).map(exp=>{
+          const bullets=(exp.achievements||[]).map(a=>`<li ${ed}>${a}</li>`).join('');
+          return `<div class="cv-d-job">
+            <div class="cv-d-job-header">
+              <div>
+                <div class="cv-d-job-role" ${ed}>${exp.role||''}</div>
+                <div class="cv-d-job-co" ${ed}>${exp.company||''}</div>
               </div>
-              <ul class="cv-d-bullets">${bullets}</ul>
-            </div>`;
-        }).join('');
-
-        return `
-          <div class="cv-dark">
-            <div class="cv-d-left">
-              <div class="cv-d-avatar">${(d.name||'A')[0].toUpperCase()}</div>
-              <div class="cv-d-name" ${ed}>${d.name || ''}</div>
-              <div class="cv-d-pos" ${ed}>${d.position || ''}</div>
-              <div class="cv-d-section">${L.contacts}</div>
-              ${d.email    ? `<div class="cv-d-contact" ${ed}>${d.email}</div>`    : ''}
-              ${d.phone    ? `<div class="cv-d-contact" ${ed}>${d.phone}</div>`    : ''}
-              ${d.city     ? `<div class="cv-d-contact" ${ed}>${d.city}</div>`     : ''}
-              ${d.linkedin ? `<div class="cv-d-contact" ${ed}>${d.linkedin}</div>` : ''}
-              ${d.github   ? `<div class="cv-d-contact" ${ed}>${d.github}</div>`   : ''}
-              ${d.portfolio? `<div class="cv-d-contact" ${ed}>${d.portfolio}</div>`: ''}
-              <div class="cv-d-section">${L.skills}</div>
-              ${skills}
-              <div class="cv-d-section">${L.education}</div>
-              <div class="cv-d-edu" ${ed}>${d.education || ''}</div>
+              <div class="cv-d-job-period" ${ed}>${exp.period||''}</div>
             </div>
-            <div class="cv-d-right">
-              <div class="cv-d-right-section">${L.profile}</div>
-              <p class="cv-d-summary" ${ed}>${d.summary || ''}</p>
-              <div class="cv-d-right-section">${L.experience}</div>
-              ${jobs}
-            </div>
+            <ul class="cv-d-bullets">${bullets}</ul>
           </div>`;
+        }).join('');
+        return `<div class="cv-dark">
+          <div class="cv-d-left">
+            <div class="cv-d-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            <div class="cv-d-name" ${ed}>${d.name||''}</div>
+            <div class="cv-d-pos" ${ed}>${d.position||''}</div>
+            <div class="cv-d-section">${L.contacts}</div>
+            ${d.email?`<div class="cv-d-contact" ${ed}>${d.email}</div>`:''}
+            ${d.phone?`<div class="cv-d-contact" ${ed}>${d.phone}</div>`:''}
+            ${d.city?`<div class="cv-d-contact" ${ed}>${d.city}</div>`:''}
+            ${d.linkedin?`<div class="cv-d-contact" ${ed}>${d.linkedin}</div>`:''}
+            ${d.github?`<div class="cv-d-contact" ${ed}>${d.github}</div>`:''}
+            ${d.portfolio?`<div class="cv-d-contact" ${ed}>${d.portfolio}</div>`:''}
+            <div class="cv-d-section">${L.skills}</div>
+            ${skills}
+            <div class="cv-d-section">${L.education}</div>
+            <div class="cv-d-edu" ${ed}>${d.education||''}</div>
+          </div>
+          <div class="cv-d-right">
+            <div class="cv-d-right-section">${L.profile}</div>
+            <p class="cv-d-summary" ${ed}>${d.summary||''}</p>
+            <div class="cv-d-right-section">${L.experience}</div>
+            ${jobs}
+          </div>
+        </div>`;
       }
 
+      /* ─────────── ШАБЛОН 3: СОЛИДНЫЙ ─────────── */
       function renderExec(d) {
-        const skills = (d.skills || []).map(s => `<span class="cv-e-skill" ${ed}>${s}</span>`).join('');
-        const jobs = (d.experience || []).map(exp => {
-          const bullets = (exp.achievements || []).map(a => `<li ${ed}>${a}</li>`).join('');
-          return `
-            <div class="cv-e-job">
-              <div class="cv-e-job-header">
-                <div>
-                  <div class="cv-e-job-role" ${ed}>${exp.role || ''}</div>
-                  <div class="cv-e-job-co" ${ed}>${exp.company || ''}</div>
-                </div>
-                <div class="cv-e-job-period" ${ed}>${exp.period || ''}</div>
+        const skills=(d.skills||[]).map(s=>`<span class="cv-e-skill" ${ed}>${s}</span>`).join('');
+        const jobs=(d.experience||[]).map(exp=>{
+          const bullets=(exp.achievements||[]).map(a=>`<li ${ed}>${a}</li>`).join('');
+          return `<div class="cv-e-job">
+            <div class="cv-e-job-header">
+              <div>
+                <div class="cv-e-job-role" ${ed}>${exp.role||''}</div>
+                <div class="cv-e-job-co" ${ed}>${exp.company||''}</div>
               </div>
-              <ul class="cv-e-bullets">${bullets}</ul>
-            </div>`;
-        }).join('');
-
-        return `
-          <div class="cv-exec">
-            <div class="cv-e-left">
-              <div class="cv-e-avatar">${(d.name||'A')[0].toUpperCase()}</div>
-              <div class="cv-e-name" ${ed}>${d.name || ''}</div>
-              <div class="cv-e-pos" ${ed}>${d.position || ''}</div>
-              <div class="cv-e-section">${L.contacts}</div>
-              ${d.email    ? `<div class="cv-e-contact" ${ed}>${d.email}</div>`    : ''}
-              ${d.phone    ? `<div class="cv-e-contact" ${ed}>${d.phone}</div>`    : ''}
-              ${d.city     ? `<div class="cv-e-contact" ${ed}>${d.city}</div>`     : ''}
-              ${d.linkedin ? `<div class="cv-e-contact" ${ed}>${d.linkedin}</div>` : ''}
-              ${d.github   ? `<div class="cv-e-contact" ${ed}>${d.github}</div>`   : ''}
-              ${d.portfolio? `<div class="cv-e-contact" ${ed}>${d.portfolio}</div>`: ''}
-              <div class="cv-e-section">${L.skills}</div>
-              ${skills}
-              <div class="cv-e-section">${L.education}</div>
-              <div class="cv-e-edu" ${ed}>${d.education || ''}</div>
+              <div class="cv-e-job-period" ${ed}>${exp.period||''}</div>
             </div>
-            <div class="cv-e-right">
-              <div class="cv-e-right-section">${L.profile}</div>
-              <p class="cv-e-summary" ${ed}>${d.summary || ''}</p>
-              <div class="cv-e-right-section">${L.experience}</div>
-              ${jobs}
-            </div>
+            <ul class="cv-e-bullets">${bullets}</ul>
           </div>`;
+        }).join('');
+        return `<div class="cv-exec">
+          <div class="cv-e-left">
+            <div class="cv-e-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            <div class="cv-e-name" ${ed}>${d.name||''}</div>
+            <div class="cv-e-pos" ${ed}>${d.position||''}</div>
+            <div class="cv-e-section">${L.contacts}</div>
+            ${d.email?`<div class="cv-e-contact" ${ed}>${d.email}</div>`:''}
+            ${d.phone?`<div class="cv-e-contact" ${ed}>${d.phone}</div>`:''}
+            ${d.city?`<div class="cv-e-contact" ${ed}>${d.city}</div>`:''}
+            ${d.linkedin?`<div class="cv-e-contact" ${ed}>${d.linkedin}</div>`:''}
+            ${d.github?`<div class="cv-e-contact" ${ed}>${d.github}</div>`:''}
+            ${d.portfolio?`<div class="cv-e-contact" ${ed}>${d.portfolio}</div>`:''}
+            <div class="cv-e-section">${L.skills}</div>
+            ${skills}
+            <div class="cv-e-section">${L.education}</div>
+            <div class="cv-e-edu" ${ed}>${d.education||''}</div>
+          </div>
+          <div class="cv-e-right">
+            <div class="cv-e-right-section">${L.profile}</div>
+            <p class="cv-e-summary" ${ed}>${d.summary||''}</p>
+            <div class="cv-e-right-section">${L.experience}</div>
+            ${jobs}
+          </div>
+        </div>`;
       }
 
+      /* ─────────── ШАБЛОН 4: МИНИМАЛИЗМ ─────────── */
+      function renderMinimal(d) {
+        const skills=(d.skills||[]).map(s=>`<span class="cv-mn-skill" ${ed}>${s}</span>`).join('');
+        const jobs=(d.experience||[]).map(exp=>{
+          const bullets=(exp.achievements||[]).map(a=>`<li ${ed}>${a}</li>`).join('');
+          return `<div>
+            <div class="cv-mn-job-title" ${ed}>${exp.role||''}</div>
+            <div class="cv-mn-job-meta"><span ${ed}>${exp.company||''}</span> · <span ${ed}>${exp.period||''}</span></div>
+            <ul class="cv-mn-bullets">${bullets}</ul>
+          </div>`;
+        }).join('');
+        return `<div class="cv-minimal">
+          <div class="cv-mn-name" ${ed}>${d.name||''}</div>
+          <div class="cv-mn-pos" ${ed}>${d.position||''}</div>
+          <div class="cv-mn-line"></div>
+          <div class="cv-mn-contacts">
+            ${d.email?`<span ${ed}>${d.email}</span>`:''}
+            ${d.phone?`<span ${ed}>${d.phone}</span>`:''}
+            ${d.city?`<span ${ed}>${d.city}</span>`:''}
+            ${d.linkedin?`<span ${ed}>${d.linkedin}</span>`:''}
+            ${d.github?`<span ${ed}>${d.github}</span>`:''}
+          </div>
+          <div class="cv-mn-body">
+            <div>
+              <div class="cv-mn-section">${L.profile}</div>
+              <p class="cv-mn-summary" ${ed}>${d.summary||''}</p>
+              <div class="cv-mn-section">${L.experience}</div>
+              ${jobs}
+            </div>
+            <div>
+              <div class="cv-mn-section">${L.skills}</div>
+              ${skills}
+              <div class="cv-mn-section">${L.education}</div>
+              <div class="cv-mn-edu" ${ed}>${d.education||''}</div>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      /* ─────────── ШАБЛОН 5: ИЗУМРУД ─────────── */
+      function renderEmerald(d) {
+        const skills=(d.skills||[]).map(s=>`<span class="cv-em-skill" ${ed}>${s}</span>`).join('');
+        const jobs=(d.experience||[]).map(exp=>{
+          const bullets=(exp.achievements||[]).map(a=>`<li ${ed}>${a}</li>`).join('');
+          return `<div class="cv-em-job">
+            <div class="cv-em-job-header">
+              <div>
+                <div class="cv-em-job-role" ${ed}>${exp.role||''}</div>
+                <div class="cv-em-job-co" ${ed}>${exp.company||''}</div>
+              </div>
+              <div class="cv-em-job-period" ${ed}>${exp.period||''}</div>
+            </div>
+            <ul class="cv-em-bullets">${bullets}</ul>
+          </div>`;
+        }).join('');
+        return `<div class="cv-emerald">
+          <div class="cv-em-left">
+            <div class="cv-em-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            <div class="cv-em-name" ${ed}>${d.name||''}</div>
+            <div class="cv-em-pos" ${ed}>${d.position||''}</div>
+            <div class="cv-em-section">${L.contacts}</div>
+            ${d.email?`<div class="cv-em-contact" ${ed}>${d.email}</div>`:''}
+            ${d.phone?`<div class="cv-em-contact" ${ed}>${d.phone}</div>`:''}
+            ${d.city?`<div class="cv-em-contact" ${ed}>${d.city}</div>`:''}
+            ${d.linkedin?`<div class="cv-em-contact" ${ed}>${d.linkedin}</div>`:''}
+            ${d.github?`<div class="cv-em-contact" ${ed}>${d.github}</div>`:''}
+            ${d.portfolio?`<div class="cv-em-contact" ${ed}>${d.portfolio}</div>`:''}
+            <div class="cv-em-section">${L.skills}</div>
+            ${skills}
+            <div class="cv-em-section">${L.education}</div>
+            <div class="cv-em-edu" ${ed}>${d.education||''}</div>
+          </div>
+          <div class="cv-em-right">
+            <div class="cv-em-right-section">${L.profile}</div>
+            <p class="cv-em-summary" ${ed}>${d.summary||''}</p>
+            <div class="cv-em-right-section">${L.experience}</div>
+            ${jobs}
+          </div>
+        </div>`;
+      }
+
+      /* ─────────── ШАБЛОН 6: ТВОРЧЕСКИЙ ─────────── */
+      function renderCreative(d) {
+        const skills=(d.skills||[]).map(s=>`<span class="cv-cr-skill" ${ed}>${s}</span>`).join('');
+        const jobs=(d.experience||[]).map(exp=>{
+          const bullets=(exp.achievements||[]).map(a=>`<li ${ed}>${a}</li>`).join('');
+          return `<div class="cv-cr-job">
+            <div class="cv-cr-job-header">
+              <div>
+                <div class="cv-cr-job-role" ${ed}>${exp.role||''}</div>
+                <div class="cv-cr-job-co" ${ed}>${exp.company||''}</div>
+              </div>
+              <div class="cv-cr-job-period" ${ed}>${exp.period||''}</div>
+            </div>
+            <ul class="cv-cr-bullets">${bullets}</ul>
+          </div>`;
+        }).join('');
+        return `<div class="cv-creative">
+          <div class="cv-cr-header">
+            <div class="cv-cr-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            <div class="cv-cr-header-info">
+              <div class="cv-cr-name" ${ed}>${d.name||''}</div>
+              <div class="cv-cr-pos" ${ed}>${d.position||''}</div>
+              <div class="cv-cr-contacts">
+                ${d.email?`<span ${ed}>${d.email}</span>`:''}
+                ${d.phone?`<span ${ed}>${d.phone}</span>`:''}
+                ${d.city?`<span ${ed}>${d.city}</span>`:''}
+                ${d.linkedin?`<span ${ed}>${d.linkedin}</span>`:''}
+              </div>
+            </div>
+          </div>
+          <div class="cv-cr-body">
+            <div>
+              <div class="cv-cr-section">${L.profile}</div>
+              <p class="cv-cr-summary" ${ed}>${d.summary||''}</p>
+              <div class="cv-cr-section">${L.experience}</div>
+              ${jobs}
+            </div>
+            <div>
+              <div class="cv-cr-section">${L.skills}</div>
+              ${skills}
+              <div class="cv-cr-section">${L.education}</div>
+              <div class="cv-cr-edu" ${ed}>${d.education||''}</div>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      /* ─────────── РЕНДЕР ─────────── */
       function render(n) {
-        if (n === 1) wrap.innerHTML = renderClassic(d);
-        if (n === 2) wrap.innerHTML = renderDark(d);
-        if (n === 3) wrap.innerHTML = renderExec(d);
-        // Prevent Enter key from creating new lines in editable elements
+        if (n===1) wrap.innerHTML = renderClassic(d);
+        else if (n===2) wrap.innerHTML = renderDark(d);
+        else if (n===3) wrap.innerHTML = renderExec(d);
+        else if (n===4) wrap.innerHTML = renderMinimal(d);
+        else if (n===5) wrap.innerHTML = renderEmerald(d);
+        else if (n===6) wrap.innerHTML = renderCreative(d);
+
         wrap.querySelectorAll('[contenteditable]').forEach(el => {
-          el.addEventListener('keydown', e => {
-            if (e.key === 'Enter') e.preventDefault();
-          });
+          el.addEventListener('keydown', e => { if(e.key==='Enter') e.preventDefault(); });
         });
+
+        if (coverLetterData) renderCoverLetter(n, coverLetterData, d);
       }
 
       render(1);
 
       document.querySelectorAll('.tpl-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
           this.classList.add('active');
           currentTemplate = parseInt(this.dataset.t);
           render(currentTemplate);
@@ -712,17 +887,260 @@
       });
     }
 
-    document.getElementById('downloadBtn').addEventListener('click', function () {
+    /* ═══════════════════ EXPORT ═══════════════════ */
+
+    // Dropdown toggle
+    document.getElementById('exportMainBtn').addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('exportMenu').classList.toggle('open');
+    });
+    document.addEventListener('click', ()=> document.getElementById('exportMenu').classList.remove('open'));
+
+    // PDF
+    document.getElementById('dlPdf').addEventListener('click', () => {
       const el = document.getElementById('cvOutput');
-      const names = { 1: 'resume-classic', 2: 'resume-dark', 3: 'resume-executive' };
+      const names = {1:'resume-classic',2:'resume-dark',3:'resume-executive',4:'resume-minimal',5:'resume-emerald',6:'resume-creative'};
       html2pdf().set({
         margin: 0,
-        filename: (names[currentTemplate] || 'resume') + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        filename: (names[currentTemplate]||'resume')+'.pdf',
+        image: { type:'jpeg', quality:0.98 },
+        html2canvas: { scale:2, useCORS:true },
+        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
       }).from(el).save();
+      document.getElementById('exportMenu').classList.remove('open');
     });
+
+    // PNG
+    document.getElementById('dlPng').addEventListener('click', () => {
+      const el = document.getElementById('cvOutput');
+      html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#ffffff' }).then(canvas => {
+        canvas.toBlob(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = 'resume.png'; a.click();
+          URL.revokeObjectURL(url);
+        }, 'image/png');
+      });
+      document.getElementById('exportMenu').classList.remove('open');
+    });
+
+    // Word
+    document.getElementById('dlWord').addEventListener('click', () => {
+      if (!resumeData) return;
+      const d = resumeData;
+      const jobs = (d.experience||[]).map(exp=>{
+        const bullets=(exp.achievements||[]).map(a=>`<li style="margin-bottom:4px;">${a}</li>`).join('');
+        return `<p style="margin:0 0 2px;font-size:11pt;font-weight:bold;">${exp.role||''}</p>
+                <p style="margin:0 0 4px;font-size:10pt;color:#555;">${exp.company||''} · ${exp.period||''}</p>
+                <ul style="margin:0 0 14px;padding-left:18px;">${bullets}</ul>`;
+      }).join('');
+      const skills = (d.skills||[]).join(' · ');
+      const contacts = [d.email,d.phone,d.city,d.linkedin,d.github].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+        <style>
+          body{font-family:Arial,sans-serif;margin:2cm;font-size:10pt;color:#111;}
+          h1{font-size:22pt;margin:0 0 3px;letter-spacing:-0.5px;}
+          .pos{font-size:12pt;color:#444;margin:0 0 5px;}
+          .contacts{font-size:10pt;color:#666;border-bottom:1px solid #ccc;padding-bottom:12px;margin-bottom:18px;}
+          h2{font-size:9pt;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #000;padding-bottom:3px;margin:18px 0 10px;}
+          p,li{font-size:10pt;line-height:1.6;}
+        </style></head><body>
+        <h1>${d.name||''}</h1>
+        <div class="pos">${d.position||''}</div>
+        <div class="contacts">${contacts}</div>
+        <h2>${L.profile}</h2><p>${d.summary||''}</p>
+        <h2>${L.experience}</h2>${jobs}
+        <h2>${L.skills}</h2><p>${skills}</p>
+        <h2>${L.education}</h2><p>${d.education||''}</p>
+      </body></html>`;
+
+      const blob = new Blob(['\ufeff', html], {type:'application/vnd.ms-word;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'resume.doc'; a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById('exportMenu').classList.remove('open');
+    });
+
+    /* ═══════════════════ ATS ═══════════════════ */
+
+    document.getElementById('atsBtn').addEventListener('click', () => {
+      document.getElementById('atsOverlay').classList.add('open');
+      runATS();
+    });
+
+    document.getElementById('atsClose').addEventListener('click', () => {
+      document.getElementById('atsOverlay').classList.remove('open');
+    });
+
+    document.getElementById('atsOverlay').addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+
+    function calcATS(resumeText, jobDesc) {
+      const stop = new Set(['и','в','на','с','по','для','от','к','из','не','за','то','о','или','но','а','как','при','что','это','его','её','их','вы','мы','я','the','and','or','in','for','with','of','to','a','is','at','that','be','are','an','by','from','as','it','was','on','he','she','they','we','you','your','their','have','has','this','but','its','can','do','if','about','an','which','one','there']);
+      const words = jobDesc.toLowerCase().replace(/[^\wа-яёa-z\s]/gi,' ').split(/\s+/).filter(w=>w.length>3&&!stop.has(w));
+      const unique = [...new Set(words)];
+      if (!unique.length) return {score:72, found:[], missing:[]};
+      const rl = resumeText.toLowerCase();
+      const found   = unique.filter(w=>rl.includes(w));
+      const missing = unique.filter(w=>!rl.includes(w));
+      const raw = (found.length/unique.length)*100;
+      const score = Math.min(Math.round(50 + raw*0.5), 97);
+      return {score, found:found.slice(0,6), missing:missing.slice(0,5)};
+    }
+
+    function runATS() {
+      if (!resumeData) return;
+      const d = resumeData;
+      const jobDesc = formData.jobDescription || '';
+      const resumeText = [d.name,d.position,d.summary,...(d.experience||[]).flatMap(e=>[e.role,e.company,...(e.achievements||[])]),...(d.skills||[]),d.education].filter(Boolean).join(' ');
+
+      // Сброс
+      const water   = document.getElementById('atsWater');
+      const numEl   = document.getElementById('atsNum');
+      const statusEl= document.getElementById('atsStatus');
+      const foundEl = document.getElementById('atsFound');
+      const missEl  = document.getElementById('atsMissing');
+      const tipEl   = document.getElementById('atsTip');
+
+      water.style.height = '0%';
+      water.style.background = 'linear-gradient(to top,#003aa8 0%,#0071e3 55%,#2997ff 100%)';
+      numEl.textContent = '0';
+      statusEl.textContent = '';
+      foundEl.innerHTML = '';
+      missEl.innerHTML  = '';
+      tipEl.textContent = '';
+
+      let score, found, missing;
+      if (!jobDesc) {
+        score=75; found=[]; missing=[];
+      } else {
+        ({score,found,missing} = calcATS(resumeText, jobDesc));
+      }
+
+      // Цвет шара по результату
+      let color, status, tip;
+      if (score>=80) {
+        color='linear-gradient(to top,#065f46 0%,#059669 55%,#34d399 100%)';
+        status='🎉 Отлично! Резюме пройдёт ATS';
+        tip='Твоё резюме хорошо оптимизировано под вакансию.';
+      } else if (score>=60) {
+        color='linear-gradient(to top,#003aa8 0%,#0071e3 55%,#2997ff 100%)';
+        status='👍 Хорошо, можно улучшить';
+        tip='Добавь больше ключевых слов из описания вакансии в профиль и достижения.';
+      } else {
+        color='linear-gradient(to top,#7f1d1d 0%,#dc2626 55%,#f87171 100%)';
+        status='⚠️ Нужна доработка';
+        tip='Внеси ключевые слова из вакансии в описание опыта и профиль.';
+      }
+
+      water.style.background = color;
+
+      // Анимация наполнения
+      setTimeout(()=>{ water.style.height = score+'%'; }, 80);
+
+      // Счётчик
+      let cur = 0;
+      const iv = setInterval(()=>{
+        cur = Math.min(cur+2, score);
+        numEl.textContent = cur;
+        if (cur>=score) clearInterval(iv);
+      }, 40);
+
+      // Детали через 1.2с
+      setTimeout(()=>{
+        statusEl.textContent = status;
+        if (jobDesc && found.length) {
+          foundEl.innerHTML = `<div class="ats-kw-title">Найдено в резюме:</div>`+found.map(w=>`<span class="ats-kw found">${w}</span>`).join('');
+        }
+        if (jobDesc && missing.length) {
+          missEl.innerHTML = `<div class="ats-kw-title">Стоит добавить:</div>`+missing.map(w=>`<span class="ats-kw missing">${w}</span>`).join('');
+        } else if (!jobDesc) {
+          missEl.innerHTML = `<div class="ats-no-job">Вставь описание вакансии в форме для точного анализа</div>`;
+        }
+        tipEl.textContent = tip;
+      }, 1200);
+    }
+
+    /* ═══════════════════ СОПРОВОДИТЕЛЬНОЕ ПИСЬМО ═══════════════════ */
+
+    document.getElementById('clGenBtn').addEventListener('click', generateCoverLetter);
+
+    async function generateCoverLetter() {
+      if (!resumeData) return;
+      const btn = document.getElementById('clGenBtn');
+      const out = document.getElementById('clOutput');
+      btn.disabled = true;
+      btn.textContent = 'Генерирую... ✨';
+      out.innerHTML = '<div class="cl-loading">Создаю письмо в стиле резюме...</div>';
+
+      const d = resumeData;
+      try {
+        const res = await fetch('/api/cover-letter', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({
+            name: d.name,
+            position: d.position,
+            summary: d.summary,
+            company: formData.company,
+            jobDescription: formData.jobDescription,
+            language: formData.language||'ru',
+            skills: d.skills
+          })
+        });
+        const result = await res.json();
+        if (result.letter) {
+          coverLetterData = result.letter;
+          renderCoverLetter(currentTemplate, result.letter, d);
+          btn.textContent = '↺ Обновить письмо';
+        } else { throw new Error(); }
+      } catch {
+        out.innerHTML = '<div class="cl-error">Ошибка генерации. Попробуй ещё раз.</div>';
+        btn.textContent = 'Сгенерировать письмо ✨';
+      }
+      btn.disabled = false;
+    }
+
+    function renderCoverLetter(tpl, letter, d) {
+      const out  = document.getElementById('clOutput');
+      const date = new Date().toLocaleDateString('ru-RU',{year:'numeric',month:'long',day:'numeric'});
+      out.innerHTML = buildCLHtml(tpl, letter, d, date);
+      out.querySelectorAll('[contenteditable]').forEach(el=>{
+        el.addEventListener('keydown',e=>{if(e.key==='Enter')e.preventDefault();});
+      });
+    }
+
+    function buildCLHtml(tpl, l, d, date) {
+      const body = `
+        <p style="margin:0 0 14px;font-size:13px;font-style:italic;" contenteditable spellcheck="false">${l.greeting}</p>
+        <p style="margin:0 0 14px;font-size:14px;line-height:1.8;" contenteditable spellcheck="false">${l.opening}</p>
+        <p style="margin:0 0 14px;font-size:14px;line-height:1.8;" contenteditable spellcheck="false">${l.body}</p>
+        <p style="margin:0 0 24px;font-size:14px;line-height:1.8;" contenteditable spellcheck="false">${l.closing}</p>
+        <p style="margin:0;font-size:14px;" contenteditable spellcheck="false">${l.signature}</p>`;
+
+      const themes = {
+        1: {wrap:`background:#fff;padding:44px 52px;font-family:'Georgia','Times New Roman',serif;color:#222;border-top:2px solid #000;`, head:`border-bottom:2px solid #000;padding-bottom:18px;margin-bottom:24px;`, name:`font-size:20px;font-weight:700;color:#000;margin-bottom:3px;`, pos:`font-size:12px;color:#555;font-style:italic;margin-bottom:4px;`, date:`font-size:12px;color:#777;margin-bottom:0;`},
+        2: {wrap:`background:#0a0a0d;padding:40px 36px;font-family:-apple-system,sans-serif;color:rgba(245,245,247,0.8);border-left:4px solid #0071e3;`, head:`margin-bottom:24px;`, name:`font-size:18px;font-weight:600;color:#f5f5f7;margin-bottom:3px;`, pos:`font-size:12px;color:#2997ff;margin-bottom:4px;`, date:`font-size:11px;color:rgba(245,245,247,0.35);margin-bottom:0;`},
+        3: {wrap:`background:#fff;padding:44px 40px;font-family:-apple-system,sans-serif;color:#333;border-top:4px solid #1b2f4e;`, head:`border-bottom:2px solid #c9a84c;padding-bottom:16px;margin-bottom:24px;`, name:`font-size:20px;font-weight:700;color:#1b2f4e;margin-bottom:3px;`, pos:`font-size:12px;color:#c9a84c;font-style:italic;margin-bottom:4px;`, date:`font-size:11px;color:#888;margin-bottom:0;`},
+        4: {wrap:`background:#fff;padding:52px 60px;font-family:-apple-system,'Helvetica Neue',sans-serif;color:#333;`, head:`border-bottom:1px solid #111;padding-bottom:14px;margin-bottom:24px;`, name:`font-size:28px;font-weight:300;color:#111;letter-spacing:-0.8px;margin-bottom:3px;`, pos:`font-size:10px;text-transform:uppercase;letter-spacing:3px;color:#888;margin-bottom:4px;`, date:`font-size:11px;color:#999;margin-bottom:0;`},
+        5: {wrap:`background:#fff;padding:44px 40px;font-family:-apple-system,sans-serif;color:#333;border-left:5px solid #064e3b;`, head:`border-bottom:2px solid #064e3b;padding-bottom:16px;margin-bottom:24px;`, name:`font-size:20px;font-weight:700;color:#064e3b;margin-bottom:3px;`, pos:`font-size:12px;color:#059669;margin-bottom:4px;`, date:`font-size:11px;color:#888;margin-bottom:0;`},
+        6: {wrap:`background:#fff;padding:0 0 40px;font-family:-apple-system,sans-serif;color:#333;overflow:hidden;`, head:`background:linear-gradient(135deg,#4c1d95,#7c3aed);padding:32px 44px;margin-bottom:24px;`, name:`font-size:20px;font-weight:700;color:#fff;margin-bottom:3px;`, pos:`font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px;`, date:`font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:0;`},
+      };
+
+      const t = themes[tpl] || themes[1];
+      const bodyWrap = tpl===6 ? `style="padding:0 44px;"` : '';
+      return `<div style="${t.wrap}">
+        <div style="${t.head}">
+          <div style="${t.name}" contenteditable spellcheck="false">${d.name||''}</div>
+          <div style="${t.pos}" contenteditable spellcheck="false">${d.position||''}</div>
+          <div style="${t.date}" contenteditable spellcheck="false">${date}</div>
+        </div>
+        <div ${bodyWrap}>${body}</div>
+      </div>`;
+    }
   </script>
 
 </body>

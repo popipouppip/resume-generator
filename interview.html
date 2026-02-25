@@ -152,12 +152,10 @@
           await addBotMessage('Готово! Переходим к твоему резюме...');
           setTimeout(() => { window.location.href = 'result.html'; }, 1200);
         } else {
-          await addBotMessage('Что-то пошло не так. <a href="form.html" style="color:#818cf8">Попробуй снова</a>.');
-          busy = false;
+          setTimeout(() => { window.location.href = 'error.html'; }, 800);
         }
       } catch {
-        await addBotMessage('Ошибка соединения. <a href="form.html" style="color:#818cf8">Попробуй снова</a>.');
-        busy = false;
+        setTimeout(() => { window.location.href = 'error.html'; }, 800);
       }
     }
 
