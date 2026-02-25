@@ -91,7 +91,6 @@
       color: rgba(245,245,247,0.3);
     }
 
-    /* Необязательный тег */
     .optional-tag {
       font-size: 10px;
       font-weight: 400;
@@ -108,7 +107,6 @@
       font-weight: 400;
     }
 
-    /* Карточка языка */
     .lang-card {
       padding: 18px 24px !important;
       margin-bottom: 20px !important;
@@ -145,6 +143,67 @@
     }
     .lang-select:focus { border-color: #0071e3; }
     .lang-select option { background: #1c1c1e; color: #f5f5f7; }
+
+    /* ===== ДИНАМИЧЕСКИЕ БЛОКИ (опыт / образование) ===== */
+    .entry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .entry-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(245,245,247,0.28);
+    }
+
+    .entry-remove-btn {
+      background: none;
+      border: 1px solid rgba(248,113,113,0.3);
+      color: #f87171;
+      font-size: 12px;
+      padding: 3px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+      line-height: 1.6;
+    }
+    .entry-remove-btn:hover { background: rgba(248,113,113,0.1); }
+
+    .job-entry + .job-entry,
+    .edu-entry + .edu-entry {
+      margin-top: 4px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .add-entry-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 11px;
+      background: rgba(255,255,255,0.03);
+      border: 1px dashed rgba(255,255,255,0.14);
+      border-radius: 8px;
+      color: rgba(245,245,247,0.38);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+    .add-entry-btn:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.22);
+      color: rgba(245,245,247,0.65);
+    }
   </style>
 </head>
 <body>
@@ -153,7 +212,6 @@
     <a href="index.html" class="logo">ResumeAI</a>
   </header>
 
-  <!-- Шапка формы -->
   <div class="form-hero">
     <div class="form-hero-badge">
       <span>✦</span> Шаг 1 из 2 — Основные данные
@@ -178,10 +236,9 @@
 
   <main class="form-page">
     <div class="form-container">
-
       <form id="resumeForm">
 
-        <!-- Язык резюме -->
+        <!-- Язык -->
         <div class="form-card lang-card">
           <div class="lang-row">
             <div class="lang-info">
@@ -232,27 +289,19 @@
         <!-- Опыт работы -->
         <div class="form-card">
           <div class="form-card-title"><span>💼</span> Опыт работы</div>
-          <div class="field">
-            <label>Company & Role <span class="label-ru">· Компания и должность</span></label>
-            <input type="text" id="company" placeholder="Google — Product Manager">
-          </div>
-          <div class="field">
-            <label>Period <span class="label-ru">· Период работы</span></label>
-            <input type="text" id="period" placeholder="2021 — 2024">
-          </div>
-          <div class="field">
-            <label>Key Duties & Achievements <span class="label-ru">· Обязанности и достижения</span></label>
-            <textarea id="duties" rows="4" placeholder="Led a cross-functional team of 12, increased revenue by 40%, managed product roadmap..."></textarea>
-          </div>
+          <div id="jobsContainer"></div>
+          <button type="button" class="add-entry-btn" id="addJobBtn">
+            + Добавить место работы
+          </button>
         </div>
 
         <!-- Образование -->
         <div class="form-card">
           <div class="form-card-title"><span>🎓</span> Образование</div>
-          <div class="field">
-            <label>University & Degree <span class="label-ru">· Учебное заведение и специальность</span></label>
-            <input type="text" id="education" placeholder="Oxford University — Computer Science, BSc, 2020">
-          </div>
+          <div id="eduContainer"></div>
+          <button type="button" class="add-entry-btn" id="addEduBtn">
+            + Добавить образование
+          </button>
         </div>
 
         <!-- Навыки -->
@@ -266,9 +315,9 @@
 
         <!-- О себе -->
         <div class="form-card">
-          <div class="form-card-title"><span>💬</span> О себе</div>
+          <div class="form-card-title"><span>💬</span> О себе <span class="optional-tag">необязательно</span></div>
           <div class="field">
-            <label>A few words about yourself <span class="label-ru">· О себе (необязательно)</span></label>
+            <label>A few words about yourself <span class="label-ru">· О себе</span></label>
             <textarea id="about" rows="3" placeholder="Results-driven, fast learner, passionate about solving complex problems..."></textarea>
           </div>
         </div>
@@ -294,6 +343,10 @@
         <div class="form-card">
           <div class="form-card-title"><span>🎯</span> Целевая вакансия <span class="optional-tag">необязательно</span></div>
           <div class="field">
+            <label>Target Company <span class="label-ru">· Куда подаёшь резюме</span></label>
+            <input type="text" id="targetCompany" placeholder="Yandex, Google, Тинькофф...">
+          </div>
+          <div class="field">
             <label>Paste job description — AI will tailor your resume to match <span class="label-ru">· AI адаптирует резюме под вакансию</span></label>
             <textarea id="jobDescription" rows="5" placeholder="Скопируй и вставь описание вакансии сюда. AI проанализирует требования и адаптирует твоё резюме так, чтобы оно прошло ATS-фильтр и зацепило рекрутера..."></textarea>
           </div>
@@ -309,6 +362,96 @@
       </form>
     </div>
   </main>
+
+  <script>
+    /* ─── ДИНАМИЧЕСКИЕ БЛОКИ РАБОТЫ ─── */
+    let jobCount = 0;
+    let eduCount = 0;
+
+    function createJobEntry(index) {
+      const div = document.createElement('div');
+      div.className = 'job-entry';
+      div.innerHTML = `
+        <div class="entry-header">
+          <span class="entry-label">Место работы ${index}</span>
+          ${index > 1 ? `<button type="button" class="entry-remove-btn">× Убрать</button>` : ''}
+        </div>
+        <div class="field">
+          <label>Company & Role <span class="label-ru">· Компания и должность</span></label>
+          <input type="text" class="job-company" placeholder="Google — Product Manager">
+        </div>
+        <div class="field">
+          <label>Period <span class="label-ru">· Период работы</span></label>
+          <input type="text" class="job-period" placeholder="2021 — 2024">
+        </div>
+        <div class="field">
+          <label>Key Duties & Achievements <span class="label-ru">· Обязанности и достижения</span></label>
+          <textarea class="job-duties" rows="4" placeholder="Led a cross-functional team of 12, increased revenue by 40%, managed product roadmap..."></textarea>
+        </div>`;
+      const removeBtn = div.querySelector('.entry-remove-btn');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+          div.remove();
+          refreshJobLabels();
+        });
+      }
+      return div;
+    }
+
+    function refreshJobLabels() {
+      document.querySelectorAll('.job-entry').forEach((el, i) => {
+        el.querySelector('.entry-label').textContent = `Место работы ${i + 1}`;
+      });
+      jobCount = document.querySelectorAll('.job-entry').length;
+    }
+
+    function addJob() {
+      jobCount++;
+      document.getElementById('jobsContainer').appendChild(createJobEntry(jobCount));
+    }
+
+    /* ─── ДИНАМИЧЕСКИЕ БЛОКИ ОБРАЗОВАНИЯ ─── */
+    function createEduEntry(index) {
+      const div = document.createElement('div');
+      div.className = 'edu-entry';
+      div.innerHTML = `
+        <div class="entry-header">
+          <span class="entry-label">Образование ${index}</span>
+          ${index > 1 ? `<button type="button" class="entry-remove-btn">× Убрать</button>` : ''}
+        </div>
+        <div class="field">
+          <label>University & Degree <span class="label-ru">· Учебное заведение и специальность</span></label>
+          <input type="text" class="edu-field" placeholder="Oxford University — Computer Science, BSc, 2020">
+        </div>`;
+      const removeBtn = div.querySelector('.entry-remove-btn');
+      if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+          div.remove();
+          refreshEduLabels();
+        });
+      }
+      return div;
+    }
+
+    function refreshEduLabels() {
+      document.querySelectorAll('.edu-entry').forEach((el, i) => {
+        el.querySelector('.entry-label').textContent = `Образование ${i + 1}`;
+      });
+      eduCount = document.querySelectorAll('.edu-entry').length;
+    }
+
+    function addEdu() {
+      eduCount++;
+      document.getElementById('eduContainer').appendChild(createEduEntry(eduCount));
+    }
+
+    // Инициализация — по одному блоку сразу
+    addJob();
+    addEdu();
+
+    document.getElementById('addJobBtn').addEventListener('click', addJob);
+    document.getElementById('addEduBtn').addEventListener('click', addEdu);
+  </script>
 
   <script src="script.js"></script>
 </body>
