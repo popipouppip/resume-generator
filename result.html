@@ -453,6 +453,61 @@
       line-height: 1.7;
       margin-bottom: 4px;
     }
+
+    /* ===== INLINE EDITING ===== */
+    [contenteditable] {
+      outline: none;
+      border-radius: 3px;
+      cursor: text;
+      transition: background 0.15s;
+    }
+    [contenteditable]:hover {
+      background: rgba(0, 113, 227, 0.07);
+    }
+    [contenteditable]:focus {
+      outline: 2px solid #0071e3;
+      outline-offset: 1px;
+      background: rgba(0, 113, 227, 0.05);
+    }
+    .cv-dark [contenteditable]:hover  { background: rgba(41,151,255,0.1); }
+    .cv-dark [contenteditable]:focus  { outline-color: #2997ff; background: rgba(41,151,255,0.08); }
+    .cv-exec [contenteditable]:hover  { background: rgba(201,168,76,0.1); }
+    .cv-exec [contenteditable]:focus  { outline-color: #c9a84c; background: rgba(201,168,76,0.07); }
+
+    .edit-hint {
+      font-size: 12px;
+      color: rgba(245,245,247,0.3);
+      text-align: center;
+      margin: 8px 0 0;
+      letter-spacing: -0.1px;
+    }
+
+    /* ===== ATS BADGE ===== */
+    .ats-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: rgba(245,245,247,0.35);
+      cursor: default;
+      font-family: inherit;
+      letter-spacing: -0.2px;
+      margin-left: 8px;
+    }
+    .ats-soon {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(99,102,241,0.2);
+      color: #818cf8;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
   </style>
 </head>
 <body>
@@ -466,7 +521,9 @@
     <button class="tpl-btn active" data-t="1">Классика Ч/Б</button>
     <button class="tpl-btn" data-t="2">Тёмный</button>
     <button class="tpl-btn" data-t="3">Солидный</button>
+    <span class="ats-badge">🛡 ATS Check <span class="ats-soon">скоро</span></span>
   </div>
+  <p class="edit-hint">Нажми на любой текст в резюме — и отредактируй</p>
 
   <main class="result-page">
     <div class="cv-wrap" id="cvOutput"></div>
@@ -480,19 +537,34 @@
     const wrap = document.getElementById('cvOutput');
     let currentTemplate = 1;
 
+    // Language-aware section labels
+    const formData = JSON.parse(localStorage.getItem('formData') || '{}');
+    const lang = formData.language || 'ru';
+    const labelMap = {
+      ru: { profile: 'Профессиональный профиль', experience: 'Опыт работы', contacts: 'Контакты', skills: 'Навыки', education: 'Образование' },
+      en: { profile: 'Professional Profile',      experience: 'Experience',    contacts: 'Contact',   skills: 'Skills',  education: 'Education' },
+      de: { profile: 'Berufliches Profil',         experience: 'Berufserfahrung', contacts: 'Kontakt', skills: 'Kenntnisse', education: 'Ausbildung' },
+      fr: { profile: 'Profil professionnel',       experience: 'Expérience',    contacts: 'Contact',   skills: 'Compétences', education: 'Formation' },
+      es: { profile: 'Perfil profesional',         experience: 'Experiencia',   contacts: 'Contacto',  skills: 'Habilidades', education: 'Educación' },
+      it: { profile: 'Profilo professionale',      experience: 'Esperienza',    contacts: 'Contatto',  skills: 'Competenze',  education: 'Istruzione' },
+      pl: { profile: 'Profil zawodowy',            experience: 'Doświadczenie', contacts: 'Kontakt',   skills: 'Umiejętności', education: 'Wykształcenie' },
+    };
+    const L = labelMap[lang] || labelMap['en'];
+
     if (!raw) {
       wrap.innerHTML = '<p style="padding:40px;color:rgba(245,245,247,0.4)">Резюме не найдено. <a href="form.html" style="color:#2997ff">Вернись и заполни форму.</a></p>';
     } else {
       const d = JSON.parse(raw);
+      const ed = 'contenteditable="true" spellcheck="false"';
 
       function renderClassic(d) {
-        const skills = (d.skills || []).map(s => `<span class="cv-c-skill">${s}</span>`).join('');
+        const skills = (d.skills || []).map(s => `<span class="cv-c-skill" ${ed}>${s}</span>`).join('');
         const jobs = (d.experience || []).map(exp => {
-          const bullets = (exp.achievements || []).map(a => `<li>${a}</li>`).join('');
+          const bullets = (exp.achievements || []).map(a => `<li ${ed}>${a}</li>`).join('');
           return `
             <div>
-              <div class="cv-c-job-title">${exp.role || ''}</div>
-              <div class="cv-c-job-meta">${exp.company || ''} · ${exp.period || ''}</div>
+              <div class="cv-c-job-title" ${ed}>${exp.role || ''}</div>
+              <div class="cv-c-job-meta"><span ${ed}>${exp.company || ''}</span> · <span ${ed}>${exp.period || ''}</span></div>
               <ul class="cv-c-bullets">${bullets}</ul>
             </div>`;
         }).join('');
@@ -500,46 +572,46 @@
         return `
           <div class="cv-classic">
             <div class="cv-top">
-              <div class="cv-c-name">${d.name || ''}</div>
-              <div class="cv-c-pos">${d.position || ''}</div>
+              <div class="cv-c-name" ${ed}>${d.name || ''}</div>
+              <div class="cv-c-pos" ${ed}>${d.position || ''}</div>
               <div class="cv-c-contacts">
-                ${d.email ? `<span>${d.email}</span>` : ''}
-                ${d.phone ? `<span>${d.phone}</span>` : ''}
-                ${d.city  ? `<span>${d.city}</span>`  : ''}
-                ${d.linkedin  ? `<span>${d.linkedin}</span>`  : ''}
-                ${d.github    ? `<span>${d.github}</span>`    : ''}
-                ${d.portfolio ? `<span>${d.portfolio}</span>` : ''}
+                ${d.email    ? `<span ${ed}>${d.email}</span>`    : ''}
+                ${d.phone    ? `<span ${ed}>${d.phone}</span>`    : ''}
+                ${d.city     ? `<span ${ed}>${d.city}</span>`     : ''}
+                ${d.linkedin ? `<span ${ed}>${d.linkedin}</span>` : ''}
+                ${d.github   ? `<span ${ed}>${d.github}</span>`   : ''}
+                ${d.portfolio? `<span ${ed}>${d.portfolio}</span>`: ''}
               </div>
             </div>
             <div class="cv-body">
               <div>
-                <div class="cv-c-section">Профессиональный профиль</div>
-                <p class="cv-c-summary">${d.summary || ''}</p>
-                <div class="cv-c-section">Опыт работы</div>
+                <div class="cv-c-section">${L.profile}</div>
+                <p class="cv-c-summary" ${ed}>${d.summary || ''}</p>
+                <div class="cv-c-section">${L.experience}</div>
                 ${jobs}
               </div>
               <div>
-                <div class="cv-c-section">Навыки</div>
+                <div class="cv-c-section">${L.skills}</div>
                 ${skills}
-                <div class="cv-c-section">Образование</div>
-                <div class="cv-c-edu">${d.education || ''}</div>
+                <div class="cv-c-section">${L.education}</div>
+                <div class="cv-c-edu" ${ed}>${d.education || ''}</div>
               </div>
             </div>
           </div>`;
       }
 
       function renderDark(d) {
-        const skills = (d.skills || []).map(s => `<span class="cv-d-skill">${s}</span>`).join('');
+        const skills = (d.skills || []).map(s => `<span class="cv-d-skill" ${ed}>${s}</span>`).join('');
         const jobs = (d.experience || []).map(exp => {
-          const bullets = (exp.achievements || []).map(a => `<li>${a}</li>`).join('');
+          const bullets = (exp.achievements || []).map(a => `<li ${ed}>${a}</li>`).join('');
           return `
             <div class="cv-d-job">
               <div class="cv-d-job-header">
                 <div>
-                  <div class="cv-d-job-role">${exp.role || ''}</div>
-                  <div class="cv-d-job-co">${exp.company || ''}</div>
+                  <div class="cv-d-job-role" ${ed}>${exp.role || ''}</div>
+                  <div class="cv-d-job-co" ${ed}>${exp.company || ''}</div>
                 </div>
-                <div class="cv-d-job-period">${exp.period || ''}</div>
+                <div class="cv-d-job-period" ${ed}>${exp.period || ''}</div>
               </div>
               <ul class="cv-d-bullets">${bullets}</ul>
             </div>`;
@@ -549,41 +621,41 @@
           <div class="cv-dark">
             <div class="cv-d-left">
               <div class="cv-d-avatar">${(d.name||'A')[0].toUpperCase()}</div>
-              <div class="cv-d-name">${d.name || ''}</div>
-              <div class="cv-d-pos">${d.position || ''}</div>
-              <div class="cv-d-section">Контакты</div>
-              ${d.email    ? `<div class="cv-d-contact">${d.email}</div>`    : ''}
-              ${d.phone    ? `<div class="cv-d-contact">${d.phone}</div>`    : ''}
-              ${d.city     ? `<div class="cv-d-contact">${d.city}</div>`     : ''}
-              ${d.linkedin ? `<div class="cv-d-contact">${d.linkedin}</div>` : ''}
-              ${d.github   ? `<div class="cv-d-contact">${d.github}</div>`   : ''}
-              ${d.portfolio? `<div class="cv-d-contact">${d.portfolio}</div>`: ''}
-              <div class="cv-d-section">Навыки</div>
+              <div class="cv-d-name" ${ed}>${d.name || ''}</div>
+              <div class="cv-d-pos" ${ed}>${d.position || ''}</div>
+              <div class="cv-d-section">${L.contacts}</div>
+              ${d.email    ? `<div class="cv-d-contact" ${ed}>${d.email}</div>`    : ''}
+              ${d.phone    ? `<div class="cv-d-contact" ${ed}>${d.phone}</div>`    : ''}
+              ${d.city     ? `<div class="cv-d-contact" ${ed}>${d.city}</div>`     : ''}
+              ${d.linkedin ? `<div class="cv-d-contact" ${ed}>${d.linkedin}</div>` : ''}
+              ${d.github   ? `<div class="cv-d-contact" ${ed}>${d.github}</div>`   : ''}
+              ${d.portfolio? `<div class="cv-d-contact" ${ed}>${d.portfolio}</div>`: ''}
+              <div class="cv-d-section">${L.skills}</div>
               ${skills}
-              <div class="cv-d-section">Образование</div>
-              <div class="cv-d-edu">${d.education || ''}</div>
+              <div class="cv-d-section">${L.education}</div>
+              <div class="cv-d-edu" ${ed}>${d.education || ''}</div>
             </div>
             <div class="cv-d-right">
-              <div class="cv-d-right-section">Профессиональный профиль</div>
-              <p class="cv-d-summary">${d.summary || ''}</p>
-              <div class="cv-d-right-section">Опыт работы</div>
+              <div class="cv-d-right-section">${L.profile}</div>
+              <p class="cv-d-summary" ${ed}>${d.summary || ''}</p>
+              <div class="cv-d-right-section">${L.experience}</div>
               ${jobs}
             </div>
           </div>`;
       }
 
       function renderExec(d) {
-        const skills = (d.skills || []).map(s => `<span class="cv-e-skill">${s}</span>`).join('');
+        const skills = (d.skills || []).map(s => `<span class="cv-e-skill" ${ed}>${s}</span>`).join('');
         const jobs = (d.experience || []).map(exp => {
-          const bullets = (exp.achievements || []).map(a => `<li>${a}</li>`).join('');
+          const bullets = (exp.achievements || []).map(a => `<li ${ed}>${a}</li>`).join('');
           return `
             <div class="cv-e-job">
               <div class="cv-e-job-header">
                 <div>
-                  <div class="cv-e-job-role">${exp.role || ''}</div>
-                  <div class="cv-e-job-co">${exp.company || ''}</div>
+                  <div class="cv-e-job-role" ${ed}>${exp.role || ''}</div>
+                  <div class="cv-e-job-co" ${ed}>${exp.company || ''}</div>
                 </div>
-                <div class="cv-e-job-period">${exp.period || ''}</div>
+                <div class="cv-e-job-period" ${ed}>${exp.period || ''}</div>
               </div>
               <ul class="cv-e-bullets">${bullets}</ul>
             </div>`;
@@ -593,24 +665,24 @@
           <div class="cv-exec">
             <div class="cv-e-left">
               <div class="cv-e-avatar">${(d.name||'A')[0].toUpperCase()}</div>
-              <div class="cv-e-name">${d.name || ''}</div>
-              <div class="cv-e-pos">${d.position || ''}</div>
-              <div class="cv-e-section">Контакты</div>
-              ${d.email    ? `<div class="cv-e-contact">${d.email}</div>`    : ''}
-              ${d.phone    ? `<div class="cv-e-contact">${d.phone}</div>`    : ''}
-              ${d.city     ? `<div class="cv-e-contact">${d.city}</div>`     : ''}
-              ${d.linkedin ? `<div class="cv-e-contact">${d.linkedin}</div>` : ''}
-              ${d.github   ? `<div class="cv-e-contact">${d.github}</div>`   : ''}
-              ${d.portfolio? `<div class="cv-e-contact">${d.portfolio}</div>`: ''}
-              <div class="cv-e-section">Навыки</div>
+              <div class="cv-e-name" ${ed}>${d.name || ''}</div>
+              <div class="cv-e-pos" ${ed}>${d.position || ''}</div>
+              <div class="cv-e-section">${L.contacts}</div>
+              ${d.email    ? `<div class="cv-e-contact" ${ed}>${d.email}</div>`    : ''}
+              ${d.phone    ? `<div class="cv-e-contact" ${ed}>${d.phone}</div>`    : ''}
+              ${d.city     ? `<div class="cv-e-contact" ${ed}>${d.city}</div>`     : ''}
+              ${d.linkedin ? `<div class="cv-e-contact" ${ed}>${d.linkedin}</div>` : ''}
+              ${d.github   ? `<div class="cv-e-contact" ${ed}>${d.github}</div>`   : ''}
+              ${d.portfolio? `<div class="cv-e-contact" ${ed}>${d.portfolio}</div>`: ''}
+              <div class="cv-e-section">${L.skills}</div>
               ${skills}
-              <div class="cv-e-section">Образование</div>
-              <div class="cv-e-edu">${d.education || ''}</div>
+              <div class="cv-e-section">${L.education}</div>
+              <div class="cv-e-edu" ${ed}>${d.education || ''}</div>
             </div>
             <div class="cv-e-right">
-              <div class="cv-e-right-section">Профессиональный профиль</div>
-              <p class="cv-e-summary">${d.summary || ''}</p>
-              <div class="cv-e-right-section">Опыт работы</div>
+              <div class="cv-e-right-section">${L.profile}</div>
+              <p class="cv-e-summary" ${ed}>${d.summary || ''}</p>
+              <div class="cv-e-right-section">${L.experience}</div>
               ${jobs}
             </div>
           </div>`;
@@ -620,6 +692,12 @@
         if (n === 1) wrap.innerHTML = renderClassic(d);
         if (n === 2) wrap.innerHTML = renderDark(d);
         if (n === 3) wrap.innerHTML = renderExec(d);
+        // Prevent Enter key from creating new lines in editable elements
+        wrap.querySelectorAll('[contenteditable]').forEach(el => {
+          el.addEventListener('keydown', e => {
+            if (e.key === 'Enter') e.preventDefault();
+          });
+        });
       }
 
       render(1);
