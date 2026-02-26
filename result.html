@@ -513,6 +513,25 @@
       color: #f87171;
       font-size: 14px;
     }
+
+    /* ===== SKELETON LOADER ===== */
+    .cv-wrap { transition: opacity 0.3s; }
+    .cv-skeleton { background: #fff; border-radius: 4px; overflow: hidden; padding: 44px 52px 36px; }
+    .cv-skeleton .sk-top { border-bottom: 2px solid #ededed; padding-bottom: 24px; }
+    .cv-skeleton .sk-body { display: grid; grid-template-columns: 1fr 240px; gap: 40px; padding-top: 32px; }
+    .sk-line { background: linear-gradient(90deg,#ececec 25%,#f5f5f5 50%,#ececec 75%); background-size: 400% 100%; border-radius: 4px; animation: sk-shine 1.4s infinite; }
+    @keyframes sk-shine { 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+    .sk-name { height:26px; width:52%; margin-bottom:10px; }
+    .sk-pos  { height:13px; width:28%; margin-bottom:18px; }
+    .sk-contacts { display:flex; gap:16px; }
+    .sk-con  { height:11px; width:90px; }
+    .sk-sec  { height:10px; width:38%; margin:24px 0 14px; }
+    .sk-t    { height:12px; margin-bottom:7px; }
+    .sk-t.w100 { width:100%; } .sk-t.w85 { width:85%; } .sk-t.w70 { width:70%; }
+    .sk-jt   { height:13px; width:55%; margin-bottom:6px; }
+    .sk-jm   { height:11px; width:38%; margin-bottom:10px; }
+    .sk-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+    .sk-chip  { height:20px; width:65px; border-radius:3px; flex-shrink:0; }
   </style>
 </head>
 <body>
@@ -541,7 +560,46 @@
   <p class="edit-hint">Нажми на любой текст в резюме — и отредактируй</p>
 
   <main class="result-page">
-    <div class="cv-wrap" id="cvOutput"></div>
+    <div class="cv-wrap" id="cvOutput">
+      <div class="cv-skeleton">
+        <div class="sk-top">
+          <div class="sk-line sk-name"></div>
+          <div class="sk-line sk-pos"></div>
+          <div class="sk-contacts">
+            <div class="sk-line sk-con"></div>
+            <div class="sk-line sk-con"></div>
+            <div class="sk-line sk-con"></div>
+          </div>
+        </div>
+        <div class="sk-body">
+          <div>
+            <div class="sk-line sk-sec" style="margin-top:0"></div>
+            <div class="sk-line sk-t w100"></div>
+            <div class="sk-line sk-t w85"></div>
+            <div class="sk-line sk-t w70"></div>
+            <div class="sk-line sk-sec"></div>
+            <div class="sk-line sk-jt"></div>
+            <div class="sk-line sk-jm"></div>
+            <div class="sk-line sk-t w100"></div>
+            <div class="sk-line sk-t w85"></div>
+            <div class="sk-line sk-t w100"></div>
+            <div class="sk-line sk-t w70"></div>
+          </div>
+          <div>
+            <div class="sk-line sk-sec" style="margin-top:0"></div>
+            <div class="sk-chips">
+              <div class="sk-line sk-chip"></div>
+              <div class="sk-line sk-chip"></div>
+              <div class="sk-line sk-chip"></div>
+              <div class="sk-line sk-chip"></div>
+            </div>
+            <div class="sk-line sk-sec"></div>
+            <div class="sk-line sk-t w100"></div>
+            <div class="sk-line sk-t w85"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Сопроводительное письмо -->
     <div class="cl-section" id="clSection">
@@ -875,14 +933,18 @@
         if (coverLetterData) renderCoverLetter(n, coverLetterData, d);
       }
 
-      render(1);
+      setTimeout(() => {
+        wrap.style.opacity = '0';
+        setTimeout(() => { render(1); wrap.style.opacity = '1'; }, 300);
+      }, 500);
 
       document.querySelectorAll('.tpl-btn').forEach(btn => {
         btn.addEventListener('click', function() {
           document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
           this.classList.add('active');
           currentTemplate = parseInt(this.dataset.t);
-          render(currentTemplate);
+          wrap.style.opacity = '0';
+          setTimeout(() => { render(currentTemplate); wrap.style.opacity = '1'; }, 150);
         });
       });
     }
