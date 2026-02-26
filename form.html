@@ -256,7 +256,7 @@
   <main class="form-page">
     <div class="form-layout">
     <div class="form-container">
-      <form id="resumeForm">
+      <form id="resumeForm" autocomplete="off">
 
         <!-- Язык -->
         <div class="form-card lang-card">
@@ -294,26 +294,26 @@
           <div class="row">
             <div class="field">
               <label>Full Name <span class="label-ru">· Имя и фамилия</span></label>
-              <input type="text" id="name" placeholder="John Smith" required>
+              <input type="text" id="name" placeholder="John Smith" required autocomplete="off">
             </div>
             <div class="field">
               <label>Desired Position <span class="label-ru">· Желаемая должность</span></label>
-              <input type="text" id="position" placeholder="Senior Product Manager" required>
+              <input type="text" id="position" placeholder="Senior Product Manager" required autocomplete="off">
             </div>
           </div>
           <div class="row">
             <div class="field">
               <label>Email</label>
-              <input type="email" id="email" placeholder="john@gmail.com" required>
+              <input type="email" id="email" placeholder="john@gmail.com" required autocomplete="off">
             </div>
             <div class="field">
               <label>Phone <span class="label-ru">· Телефон</span></label>
-              <input type="text" id="phone" placeholder="+1 555 123 4567">
+              <input type="text" id="phone" placeholder="+1 555 123 4567" autocomplete="off">
             </div>
           </div>
           <div class="field">
             <label>City <span class="label-ru">· Город</span></label>
-            <input type="text" id="city" placeholder="New York">
+            <input type="text" id="city" placeholder="New York" autocomplete="off">
           </div>
         </div>
 
@@ -340,7 +340,7 @@
           <div class="form-card-title"><span>⚡</span> Навыки</div>
           <div class="field">
             <label>List your skills, comma-separated <span class="label-ru">· Навыки через запятую</span></label>
-            <input type="text" id="skills" placeholder="Python, SQL, Agile, Leadership, English C2">
+            <input type="text" id="skills" placeholder="Python, SQL, Agile, Leadership, English C2" autocomplete="off">
           </div>
         </div>
 
@@ -349,7 +349,7 @@
           <div class="form-card-title"><span>💬</span> О себе <span class="optional-tag">необязательно</span></div>
           <div class="field">
             <label>A few words about yourself <span class="label-ru">· О себе</span></label>
-            <textarea id="about" rows="3" placeholder="Results-driven, fast learner, passionate about solving complex problems..."></textarea>
+            <textarea id="about" rows="3" placeholder="Results-driven, fast learner, passionate about solving complex problems..." autocomplete="off"></textarea>
           </div>
         </div>
 
@@ -358,15 +358,15 @@
           <div class="form-card-title"><span>🔗</span> Ссылки <span class="optional-tag">необязательно</span></div>
           <div class="field">
             <label>LinkedIn</label>
-            <input type="url" id="linkedin" placeholder="linkedin.com/in/john-smith">
+            <input type="url" id="linkedin" placeholder="linkedin.com/in/john-smith" autocomplete="off">
           </div>
           <div class="field">
             <label>GitHub</label>
-            <input type="url" id="github" placeholder="github.com/john-smith">
+            <input type="url" id="github" placeholder="github.com/john-smith" autocomplete="off">
           </div>
           <div class="field">
             <label>Portfolio / Website <span class="label-ru">· Портфолио / Сайт</span></label>
-            <input type="url" id="portfolio" placeholder="johnsmith.dev">
+            <input type="url" id="portfolio" placeholder="johnsmith.dev" autocomplete="off">
           </div>
         </div>
 
@@ -375,11 +375,11 @@
           <div class="form-card-title"><span>🎯</span> Целевая вакансия <span class="optional-tag">необязательно</span></div>
           <div class="field">
             <label>Target Company <span class="label-ru">· Куда подаёшь резюме</span></label>
-            <input type="text" id="targetCompany" placeholder="Yandex, Google, Тинькофф...">
+            <input type="text" id="targetCompany" placeholder="Yandex, Google, Тинькофф..." autocomplete="off">
           </div>
           <div class="field">
             <label>Paste job description — AI will tailor your resume to match <span class="label-ru">· AI адаптирует резюме под вакансию</span></label>
-            <textarea id="jobDescription" rows="5" placeholder="Скопируй и вставь описание вакансии сюда. AI проанализирует требования и адаптирует твоё резюме так, чтобы оно прошло ATS-фильтр и зацепило рекрутера..."></textarea>
+            <textarea id="jobDescription" rows="5" placeholder="Скопируй и вставь описание вакансии сюда. AI проанализирует требования и адаптирует твоё резюме так, чтобы оно прошло ATS-фильтр и зацепило рекрутера..." autocomplete="off"></textarea>
           </div>
         </div>
 
@@ -432,15 +432,15 @@
         </div>
         <div class="field">
           <label>Company & Role <span class="label-ru">· Компания и должность</span></label>
-          <input type="text" class="job-company" placeholder="Google — Product Manager">
+          <input type="text" class="job-company" placeholder="Google — Product Manager" autocomplete="off">
         </div>
         <div class="field">
           <label>Period <span class="label-ru">· Период работы</span></label>
-          <input type="text" class="job-period" placeholder="2021 — 2024">
+          <input type="text" class="job-period" placeholder="2021 — 2024" autocomplete="off">
         </div>
         <div class="field">
           <label>Key Duties & Achievements <span class="label-ru">· Обязанности и достижения</span></label>
-          <textarea class="job-duties" rows="4" placeholder="Led a cross-functional team of 12, increased revenue by 40%, managed product roadmap..."></textarea>
+          <textarea class="job-duties" rows="4" placeholder="Led a cross-functional team of 12, increased revenue by 40%, managed product roadmap..." autocomplete="off"></textarea>
         </div>`;
       const removeBtn = div.querySelector('.entry-remove-btn');
       if (removeBtn) {
@@ -475,7 +475,7 @@
         </div>
         <div class="field">
           <label>University & Degree <span class="label-ru">· Учебное заведение и специальность</span></label>
-          <input type="text" class="edu-field" placeholder="Oxford University — Computer Science, BSc, 2020">
+          <input type="text" class="edu-field" placeholder="Oxford University — Computer Science, BSc, 2020" autocomplete="off">
         </div>`;
       const removeBtn = div.querySelector('.entry-remove-btn');
       if (removeBtn) {
