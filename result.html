@@ -532,6 +532,18 @@
     .sk-jm   { height:11px; width:38%; margin-bottom:10px; }
     .sk-chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
     .sk-chip  { height:20px; width:65px; border-radius:3px; flex-shrink:0; }
+
+    /* ===== AI IMPROVE BUTTON ===== */
+    .ai-improve-btn {
+      display:inline-flex; align-items:center; gap:4px;
+      padding:3px 10px; font-size:11px; font-family:inherit;
+      background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.28);
+      color:#818cf8; border-radius:6px; cursor:pointer;
+      margin-top:6px; transition:all 0.2s; vertical-align:middle;
+    }
+    .ai-improve-btn:hover { background:rgba(99,102,241,0.2); }
+    .ai-improve-btn:disabled { opacity:0.55; cursor:not-allowed; }
+    .printing .ai-improve-btn { display:none !important; }
   </style>
 </head>
 <body>
@@ -677,6 +689,7 @@
         }).join('');
         return `<div class="cv-classic">
           <div class="cv-top">
+            ${formData.photo?`<img src="${formData.photo}" style="width:80px;height:80px;border-radius:4px;object-fit:cover;float:right;margin:0 0 8px 20px;">`:''}
             <div class="cv-c-name" ${ed}>${d.name||''}</div>
             <div class="cv-c-pos" ${ed}>${d.position||''}</div>
             <div class="cv-c-contacts">
@@ -723,7 +736,7 @@
         }).join('');
         return `<div class="cv-dark">
           <div class="cv-d-left">
-            <div class="cv-d-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            ${formData.photo?`<img src="${formData.photo}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:16px;display:block;">`:`<div class="cv-d-avatar">${(d.name||'A')[0].toUpperCase()}</div>`}
             <div class="cv-d-name" ${ed}>${d.name||''}</div>
             <div class="cv-d-pos" ${ed}>${d.position||''}</div>
             <div class="cv-d-section">${L.contacts}</div>
@@ -765,7 +778,7 @@
         }).join('');
         return `<div class="cv-exec">
           <div class="cv-e-left">
-            <div class="cv-e-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            ${formData.photo?`<img src="${formData.photo}" style="width:68px;height:68px;border-radius:6px;object-fit:cover;margin-bottom:18px;display:block;">`:`<div class="cv-e-avatar">${(d.name||'A')[0].toUpperCase()}</div>`}
             <div class="cv-e-name" ${ed}>${d.name||''}</div>
             <div class="cv-e-pos" ${ed}>${d.position||''}</div>
             <div class="cv-e-section">${L.contacts}</div>
@@ -846,7 +859,7 @@
         }).join('');
         return `<div class="cv-emerald">
           <div class="cv-em-left">
-            <div class="cv-em-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            ${formData.photo?`<img src="${formData.photo}" style="width:66px;height:66px;border-radius:50%;object-fit:cover;margin-bottom:16px;display:block;">`:`<div class="cv-em-avatar">${(d.name||'A')[0].toUpperCase()}</div>`}
             <div class="cv-em-name" ${ed}>${d.name||''}</div>
             <div class="cv-em-pos" ${ed}>${d.position||''}</div>
             <div class="cv-em-section">${L.contacts}</div>
@@ -888,7 +901,7 @@
         }).join('');
         return `<div class="cv-creative">
           <div class="cv-cr-header">
-            <div class="cv-cr-avatar">${(d.name||'A')[0].toUpperCase()}</div>
+            ${formData.photo?`<div class="cv-cr-avatar" style="padding:0;overflow:hidden;"><img src="${formData.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>`:`<div class="cv-cr-avatar">${(d.name||'A')[0].toUpperCase()}</div>`}
             <div class="cv-cr-header-info">
               <div class="cv-cr-name" ${ed}>${d.name||''}</div>
               <div class="cv-cr-pos" ${ed}>${d.position||''}</div>
@@ -931,6 +944,7 @@
         });
 
         if (coverLetterData) renderCoverLetter(n, coverLetterData, d);
+        injectAIButtons(wrap);
       }
 
       setTimeout(() => {
@@ -947,6 +961,60 @@
           setTimeout(() => { render(currentTemplate); wrap.style.opacity = '1'; }, 150);
         });
       });
+    }
+
+    /* ═══════════════════ AI IMPROVE ═══════════════════ */
+
+    function injectAIButtons(wrap) {
+      // Профиль / Summary
+      wrap.querySelectorAll('.cv-c-summary,.cv-d-summary,.cv-e-summary,.cv-mn-summary,.cv-em-summary,.cv-cr-summary').forEach(el => {
+        const btn = makeAIBtn();
+        btn.onclick = () => improveWithAI(el, btn, 'summary');
+        el.insertAdjacentElement('afterend', btn);
+      });
+      // Достижения / Bullets
+      wrap.querySelectorAll('.cv-c-bullets,.cv-d-bullets,.cv-e-bullets,.cv-mn-bullets,.cv-em-bullets,.cv-cr-bullets').forEach(el => {
+        const btn = makeAIBtn();
+        btn.onclick = () => improveWithAI(el, btn, 'bullets');
+        el.insertAdjacentElement('afterend', btn);
+      });
+    }
+
+    function makeAIBtn() {
+      const btn = document.createElement('button');
+      btn.className = 'ai-improve-btn';
+      btn.textContent = '✨ Улучшить';
+      return btn;
+    }
+
+    async function improveWithAI(el, btn, type) {
+      const text = el.innerText.trim();
+      if (!text || text.length < 15) return;
+      btn.disabled = true;
+      btn.textContent = '⏳ Генерирую...';
+      try {
+        const res = await fetch('/api/improve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, type }),
+        });
+        const data = await res.json();
+        if (data.text) {
+          if (type === 'bullets') {
+            const ed = 'contenteditable="true" spellcheck="false"';
+            el.innerHTML = data.text.split('\n').filter(l=>l.trim()).map(l=>`<li ${ed}>${l.replace(/^[-•]\s*/,'')}</li>`).join('');
+          } else {
+            el.innerText = data.text;
+          }
+          btn.textContent = '✅ Готово';
+          setTimeout(() => { btn.textContent = '✨ Улучшить'; }, 2500);
+        } else {
+          btn.textContent = '✨ Улучшить';
+        }
+      } catch {
+        btn.textContent = '✨ Улучшить';
+      }
+      btn.disabled = false;
     }
 
     /* ═══════════════════ EXPORT ═══════════════════ */
@@ -966,7 +1034,7 @@
         margin: 0,
         filename: (names[currentTemplate]||'resume')+'.pdf',
         image: { type:'jpeg', quality:0.98 },
-        html2canvas: { scale:2, useCORS:true },
+        html2canvas: { scale:2, useCORS:true, ignoreElements: e => e.classList.contains('ai-improve-btn') },
         jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
       }).from(el).save();
       document.getElementById('exportMenu').classList.remove('open');
@@ -975,7 +1043,7 @@
     // PNG
     document.getElementById('dlPng').addEventListener('click', () => {
       const el = document.getElementById('cvOutput');
-      html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#ffffff' }).then(canvas => {
+      html2canvas(el, { scale:2, useCORS:true, backgroundColor:'#ffffff', ignoreElements: e => e.classList.contains('ai-improve-btn') }).then(canvas => {
         canvas.toBlob(blob => {
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');

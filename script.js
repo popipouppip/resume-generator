@@ -37,6 +37,7 @@ if (form) {
       jobDescription: document.getElementById('jobDescription').value.trim(),
     };
 
+    if (typeof photoData !== 'undefined' && photoData) data.photo = photoData;
     localStorage.setItem('formData', JSON.stringify(data));
     window.location.href = 'interview.html';
   });
