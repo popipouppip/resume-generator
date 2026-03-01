@@ -205,14 +205,8 @@
       color: rgba(245,245,247,0.65);
     }
 
-    /* ===== LAYOUT + VASE ===== */
-    .form-layout { display:flex; align-items:flex-start; gap:24px; max-width:830px; margin:0 auto; }
-    .form-layout .form-container { flex:1; max-width:680px; margin:0; }
-    .vase-sidebar { width:80px; flex-shrink:0; display:flex; justify-content:center; }
-    .vase-sticky { position:sticky; top:80px; display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .vase-pct { font-size:15px; font-weight:700; color:rgba(245,245,247,0.45); letter-spacing:-0.5px; }
-    @keyframes vasewv { 0%{transform:translateX(0)} 100%{transform:translateX(-35px)} }
-    #vWaterGroup { transition:transform 0.7s cubic-bezier(0.34,1.4,0.64,1); }
+    /* ===== FORM CONTAINER ===== */
+    .form-container { max-width:680px; margin:0 auto; }
 
     /* ===== PHOTO UPLOAD ===== */
     .photo-row { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
@@ -222,7 +216,6 @@
     .photo-circle-hint { font-size:11px; color:rgba(245,245,247,0.3); text-align:center; line-height:1.4; pointer-events:none; }
     .photo-clear-btn { background:none; border:1px solid rgba(248,113,113,0.3); color:#f87171; font-size:12px; padding:4px 12px; border-radius:6px; cursor:pointer; font-family:inherit; display:none; }
     .photo-clear-btn:hover { background:rgba(248,113,113,0.1); }
-    @media (max-width:900px) { .vase-sidebar { display:none; } .form-layout { display:block; } .form-layout .form-container { max-width:680px; margin:0 auto; } }
   </style>
 </head>
 <body>
@@ -254,8 +247,7 @@
   </div>
 
   <main class="form-page">
-    <div class="form-layout">
-    <div class="form-container">
+    <div class="form-container" style="max-width:680px; margin:0 auto;">
       <form id="resumeForm" autocomplete="off">
 
         <!-- Язык -->
@@ -392,29 +384,6 @@
 
       </form>
     </div>
-    <div class="vase-sidebar">
-      <div class="vase-sticky">
-        <svg viewBox="0 0 70 310" width="70" height="310" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <clipPath id="vcp">
-              <path d="M27,6 C21,16 10,48 7,110 C4,175 9,240 14,274 Q19,300 35,300 Q51,300 56,274 C61,240 66,175 63,110 C60,48 49,16 43,6 Z"/>
-            </clipPath>
-          </defs>
-          <path d="M27,6 C21,16 10,48 7,110 C4,175 9,240 14,274 Q19,300 35,300 Q51,300 56,274 C61,240 66,175 63,110 C60,48 49,16 43,6 Z" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
-          <g clip-path="url(#vcp)">
-            <g id="vWaterGroup" style="transform:translateY(300px)">
-              <g style="animation:vasewv 2.5s linear infinite">
-                <path fill="rgba(0,113,227,0.88)" d="M-35,0 Q-17.5,-6 0,0 Q17.5,6 35,0 Q52.5,-6 70,0 Q87.5,6 105,0 L105,310 L-35,310 Z"/>
-              </g>
-            </g>
-          </g>
-          <ellipse cx="35" cy="6" rx="8" ry="3" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-          <path d="M27,22 C23,36 16,80 14,130" stroke="rgba(255,255,255,0.08)" stroke-width="5" fill="none" stroke-linecap="round"/>
-        </svg>
-        <div class="vase-pct">0%</div>
-      </div>
-    </div>
-    </div>
   </main>
 
   <script>
@@ -531,34 +500,6 @@
       document.getElementById('photoInput').value = '';
     });
 
-    /* ─── ПРОГРЕСС ВАЗА ─── */
-    function calcProgress() {
-      const fields = [
-        document.getElementById('name').value.trim(),
-        document.getElementById('position').value.trim(),
-        document.getElementById('email').value.trim(),
-        document.getElementById('phone').value.trim(),
-        document.getElementById('city').value.trim(),
-        document.querySelector('.job-company')?.value.trim() || '',
-        document.querySelector('.job-duties')?.value.trim() || '',
-        document.querySelector('.edu-field')?.value.trim() || '',
-        document.getElementById('skills').value.trim(),
-        document.getElementById('about').value.trim(),
-        document.getElementById('linkedin').value.trim(),
-        document.getElementById('github').value.trim(),
-        document.getElementById('portfolio').value.trim(),
-        document.getElementById('targetCompany').value.trim(),
-        document.getElementById('jobDescription').value.trim(),
-      ];
-      return Math.round(fields.filter(v => v.length > 0).length / fields.length * 100);
-    }
-    function updateVase(pct) {
-      document.getElementById('vWaterGroup').style.transform = `translateY(${300 - pct * 2.94}px)`;
-      document.querySelector('.vase-pct').textContent = pct + '%';
-    }
-    document.getElementById('resumeForm').addEventListener('input', function() {
-      updateVase(calcProgress());
-    });
   </script>
 
   <script src="script.js"></script>
